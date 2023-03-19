@@ -1,0 +1,31 @@
+{
+  "name": "ttsmascot",
+  "version": "1.0.0",
+  "description": "TTS Mascot",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lxfly2000/TTSMascot.git"
+  },
+  "keywords": [
+    "tts",
+    "mascot",
+    "voicevox",
+    "aivoice"
+  ],
+  "author": "lxfly2000",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lxfly2000/TTSMascot/issues"
+  },
+  "homepage": "https://github.com/lxfly2000/TTSMascot#readme",
+  "devDependencies": {
+    "electron": "^23.1.4"
+  },
+  "dependencies": {
+    "psd": "^3.4.0"
+  }
+}
