@@ -97,13 +97,13 @@ const defaultMascotJson={
     seats: [
         {
             xPercent: 0.1,
-            yPercent: 0.8,
+            yPercent: 0.75,
             enabled: true,
             character: 0
         },
         {
             xPercent: 0.9,
-            yPercent: 0.8,
+            yPercent: 0.75,
             enabled: true,
             character: -1
         }

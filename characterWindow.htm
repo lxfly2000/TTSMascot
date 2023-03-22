@@ -33,6 +33,7 @@
 		window.addEventListener('DOMContentLoaded', () => {
 			ipcRenderer.on('setCharacter',(event,data)=>{
 				img1.src=data.url;
+				document.title=data.name;
 				if(data.width>0){
 					img1.style.width=data.width+"px";
 				}else if(data.height>0){
@@ -40,6 +41,7 @@
 				}
 			});
 			ipcRenderer.on('setInfo',(event,data)=>{
+				document.title=data;
 				document.body.innerHTML='<div class="RectBg">'+data+'</div>';
 			});
 		});

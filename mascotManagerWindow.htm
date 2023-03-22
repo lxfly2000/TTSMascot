@@ -22,7 +22,10 @@
 				<td><label for="editMaxRecordsNum">最大消息记录数：</label></td><td><input type="number" id="editMaxRecordsNum" min="1"/></td>
 			</tr>
 			<tr>
-				<td><label for="listenPort">*监听端口号：</label></td><td><input type="number" id="listenPort" min="0" max="65535"/></td>
+				<td><label for="editListenPort">*监听端口号：</label></td><td><input type="number" id="editListenPort" min="0" max="65535"/></td>
+			</tr>
+			<tr>
+				<td><label for="editSafeAreaExtendRate">窗口安全区扩展倍率：</label></td><td><input type="number" step="0.01" id="editSafeAreaExtendRate" min="1"/></td>
 			</tr>
 		</table>
 		<p>标*的项目需要重启后才能使修改生效。</p>
@@ -41,12 +44,14 @@
 			tempJson=jsonData;
 			editMaxRecordsNum.value=tempJson.maxMsgRecordsNum;
 			checkShowManagerWindowOnStartup.checked=tempJson.showManagerWindowOnStartup;
-			listenPort.value=tempJson.port;
+			editSafeAreaExtendRate.value=tempJson.windowSafeAreaExtendRate;
+			editListenPort.value=tempJson.port;
 		}
 		function SaveConfig(){
 			tempJson.maxMsgRecordsNum=editMaxRecordsNum.value;
 			tempJson.showManagerWindowOnStartup=checkShowManagerWindowOnStartup.checked;
-			tempJson.port=listenPort.value;
+			tempJson.port=editListenPort.value;
+			tempJson.windowSafeAreaExtendRate=editSafeAreaExtendRate.value;
 			ipcRenderer.send('saveConfig',tempJson);
 			close();
 		}

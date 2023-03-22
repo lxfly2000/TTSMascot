@@ -15,7 +15,8 @@ class Character{
         let c=global.mascotData.characters[s.character];
         if(psdfile.parse()){
             let setData={
-                url:undefined,
+                url:null,
+                name:c.name,
                 width:c.definedWidthPx*c.zoom,
                 height:c.definedHeightPx*c.zoom
             };
