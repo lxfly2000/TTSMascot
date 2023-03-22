@@ -1,0 +1,37 @@
+<html>
+	<head>
+		<title>Character</title>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width,user-scalable=no"/>
+		<style>
+			.RectBg{
+				-webkit-app-region: drag;
+				background: linear-gradient(to right,darkgreen,transparent);
+				color: white;
+			}
+			#img1{
+				-webkit-app-region: drag;
+				transform: rotateY(180deg);
+			}
+		</style>
+	</head>
+	<body>
+		<img id="img1"/>
+	</body>
+	<script>
+		const {ipcRenderer} = require('electron');
+		window.addEventListener('DOMContentLoaded', () => {
+			ipcRenderer.on('setCharacter',(event,data)=>{
+				img1.src=data.url;
+				if(data.width>0){
+					img1.style.width=data.width+"px";
+				}else if(data.height>0){
+					img1.style.height=data.height+"px";
+				}
+			});
+			ipcRenderer.on('setInfo',(event,data)=>{
+				document.body.innerHTML='<div class="RectBg">'+data+'</div>';
+			});
+		});
+	</script>
+</html>

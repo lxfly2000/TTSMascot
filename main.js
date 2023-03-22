@@ -1,37 +1,8 @@
-const {app, BrowserWindow} = require('electron')
-const path = require('path')
-
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let win;
+const {app, BrowserWindow} = require('electron');
+const mascotmanager = require('./mascotManager.js');
 
 function createWindow () {
-	// 创建浏览器窗口。
-	win = new BrowserWindow({
-		width: 800,
-		height: 600,
-		transparent: true,
-		frame: false,
-		webPreferences: {
-			preload: path.join(__dirname, 'preload.js'),//这一项必须使用绝对路径
-			nodeIntegration: true,//要想在浏览器环境中调用Require，需要关闭隔离选项
-			contextIsolation: false
-		}
-	});
-
-	// 然后加载应用的 index.html。
-	win.loadFile('index.html');
-
-	// 打开开发者工具
-	//win.webContents.openDevTools();
-
-	// 当 window 被关闭，这个事件会被触发。
-	win.on('closed', () => {
-		// 取消引用 window 对象，如果你的应用支持多窗口的话，
-		// 通常会把多个 window 对象存放在一个数组里面，
-		// 与此同时，你应该删除相应的元素。
-		win = null;
-	});
+	mascotmanager.mascotManagerMain();
 }
 
 // Electron 会在初始化后并准备
@@ -65,5 +36,3 @@ app.on('activate', () => {
 
 // 在这个文件中，你可以续写应用剩下主进程代码。
 // 也可以拆分成几个文件，然后用 require 导入。
-
-require('./ttsserver');

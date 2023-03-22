@@ -1,0 +1,31 @@
+{
+	"characters": [
+		{
+			"path": "ずんだもん立ち絵素材改1.0",
+			"zoom": 1,
+			"flipx": false,
+			"flipy": false,
+			"name": "俊达萌",
+			"color": "green",
+			"definedWidthPx": 300,
+			"definedHeightPx": 0
+		}
+	],
+	"seats": [
+		{
+			"xPercent": 0.1,
+			"yPercent": 0.8,
+			"enabled": true,
+			"character": 0
+		},
+		{
+			"xPercent": 0.9,
+			"yPercent": 0.8,
+			"enabled": true,
+			"character": -1
+		}
+	],
+	"maxMsgRecordsNum": 10,
+	"showManagerWindowOnStartup": true,
+	"port": 20042
+}
