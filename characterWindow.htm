@@ -6,12 +6,22 @@
 		<style>
 			.RectBg{
 				-webkit-app-region: drag;
-				background: linear-gradient(to right,darkgreen,transparent);
+				background: linear-gradient(to bottom right,darkgreen,transparent);
 				color: white;
+				width: 100%;
+				height: 100%;
+				text-align: center;
 			}
 			#img1{
 				-webkit-app-region: drag;
-				transform: rotateY(180deg);
+				/*因为矩阵的前后顺序原因，变换的应用顺序是从右往左*/
+				transform: translate(-50%, -50%) rotateY(180deg) scaleY(1);
+				transform-origin: 50% 100%;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				/*确保是[0.0,1.0]或[0,100%]之间的值*/
+				opacity: 1.0;
 			}
 		</style>
 	</head>

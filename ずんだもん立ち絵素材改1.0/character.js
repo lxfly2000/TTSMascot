@@ -25,11 +25,12 @@ class Character{
             }else if(setData.height===0){
                 setData.height=psdinfo.document.height*setData.width/psdinfo.document.width;
             }
+            const windowSafeAreaExtendRate=global.mascotData.windowSafeAreaExtendRate;
             this.usingWindow.setBounds({
-                x:Math.floor(screenSize.width*s.xPercent-Math.ceil(setData.width/2)),
-                y:Math.floor(screenSize.height*s.yPercent-Math.ceil(setData.height/2)),
-                width:Math.ceil(setData.width),
-                height:Math.ceil(setData.height)
+                x:Math.floor(screenSize.width*s.xPercent-Math.ceil(setData.width*windowSafeAreaExtendRate/2)),
+                y:Math.floor(screenSize.height*s.yPercent-Math.ceil(setData.height*windowSafeAreaExtendRate/2)),
+                width:Math.ceil(setData.width*windowSafeAreaExtendRate),
+                height:Math.ceil(setData.height*windowSafeAreaExtendRate)
             });
             var png=psdfile.image.toPng();
             toBase64(png).then(contentBase64String=>{

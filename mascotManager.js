@@ -110,7 +110,8 @@ const defaultMascotJson={
     ],
     maxMsgRecordsNum: 10,
     showManagerWindowOnStartup: true,
-    port: 20042
+    port: 20042,
+    windowSafeAreaExtendRate: 1.25
 };
 
 /**
