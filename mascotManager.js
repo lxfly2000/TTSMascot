@@ -57,7 +57,7 @@ function createManagerWindow(){
 
 	// 当 window 被关闭，这个事件会被触发。
 	managerWindow.on('closed', () => {
-        saveMascotData();
+        global.saveMascotData();
 		// 取消引用 window 对象，如果你的应用支持多窗口的话，
 		// 通常会把多个 window 对象存放在一个数组里面，
 		// 与此同时，你应该删除相应的元素。
@@ -89,7 +89,7 @@ const defaultMascotJson={
             flipx: false,
             flipy: true,
             name: "俊达萌",
-            color: "green",
+            color: "#58A33C",
             definedWidthPx: 300,
             definedHeightPx: 0,
             faceTowards: false//false为向左或居中，true为向右
@@ -99,11 +99,21 @@ const defaultMascotJson={
             zoom: 1,
             flipx: false,
             flipy: false,
-            name: "栗田",
-            color: "brown",
+            name: "栗田Maron",
+            color: "#B9908C",
             definedWidthPx: 300,
             definedHeightPx: 0,
             faceTowards: false//false为向左或居中，true为向右
+        },{
+            path:"きりたん立ち素材",
+            zoom:1,
+            flipx:false,
+            flipy:false,
+            name:"东北切蒲英",
+            color:"#934060",
+            definedWidthPx:300,
+            definedHeightPx:0,
+            faceTowards:false//false为向左或居中，true为向右
         }
     ],
     seats: [
@@ -141,7 +151,7 @@ global.predefinedSeats=[
 /**
  * 读取角色配置
  */
-function readMascotData(){
+global.readMascotData=function(){
     try{
         //合并JSON项目
         global.mascotData=Object.assign(defaultMascotJson,JSON.parse(fs.readFileSync(mascotJsonFileName,'utf-8')));
@@ -154,7 +164,7 @@ function readMascotData(){
 /**
  * 保存角色配置
  */
-function saveMascotData(){
+global.saveMascotData=function(){
     try{
         fs.writeFileSync(mascotJsonFileName,JSON.stringify(global.mascotData,null,'\t'));
     }catch(e){
@@ -166,7 +176,7 @@ function saveMascotData(){
  * 角色管理器主函数
  */
 function mascotManagerMain(){
-    readMascotData();
+    global.readMascotData();
     loadScene();
     if(!TTSServer.isServerRunning()){
         TTSServer.startServer();
@@ -174,13 +184,9 @@ function mascotManagerMain(){
     createManagerWindow();
 }
 
-module.exports={
-    mascotManagerMain,
-    readMascotData,
-    saveMascotData
-};
+module.exports={mascotManagerMain};
 
-//{seatWindow:window,seatCharacter:character实例}
+//{seatWindow:window,seatPopup:window,seatCharacter:character实例}
 //记录所有Character的实例，由于是直接通过seats下标设置元素的，可能有undefined的值
 global.seatWindows=[];
 global.findSeatIndexByCharacterIndex=function(characterIndex){

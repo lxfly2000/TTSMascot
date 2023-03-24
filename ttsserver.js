@@ -101,8 +101,7 @@ function processRequest(_character,_sender,_subtitle,_voice){
             _character=global.mascotData.seats[seatIndex].character;
         }
     }
-    global.seatWindows[seatIndex].seatCharacter.speak(_voice);
-    global.seatWindows[seatIndex].seatCharacter.showMsg(_subtitle);
+    global.seatWindows[seatIndex].seatCharacter.queueSpeak(_voice,_subtitle);
     //记录的数据任何属性都不能为null或undefined！！
     requestRecords.push({sender:_sender,character:_character});
     while(requestRecords.length>global.mascotData.maxMsgRecordsNum){
