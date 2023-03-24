@@ -85,6 +85,7 @@ function processRequest(_character,_sender,_subtitle,_voice){
         if(seatIndex===-1){
             seatIndex=findIdleLeastSpeakCharacter();
             global.seatChangeCharacter(seatIndex,_character);
+            global.saveMascotData();
         }
     }else{//若未指定
         var senderIndex=findSenderIndexReverse(_sender);
