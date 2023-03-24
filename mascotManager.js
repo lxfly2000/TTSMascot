@@ -37,8 +37,8 @@ function createManagerWindow(){
     Menu.setApplicationMenu(null);
     // 创建浏览器窗口。
 	managerWindow = new BrowserWindow({
-		width: 800,
-		height: 600,
+		width: 400,
+		height: 300,
         show: global.mascotData.showManagerWindowOnStartup,
 		/*transparent: true,
 		frame: false,*/
@@ -87,11 +87,23 @@ const defaultMascotJson={
             path: "ずんだもん立ち絵素材改1.0",
             zoom: 1,
             flipx: false,
-            flipy: false,
+            flipy: true,
             name: "俊达萌",
             color: "green",
             definedWidthPx: 300,
-            definedHeightPx: 0
+            definedHeightPx: 0,
+            faceTowards: false//false为向左或居中，true为向右
+        },
+        {
+            path: "栗田まろん立ち素材",
+            zoom: 1,
+            flipx: false,
+            flipy: false,
+            name: "栗田",
+            color: "brown",
+            definedWidthPx: 300,
+            definedHeightPx: 0,
+            faceTowards: false//false为向左或居中，true为向右
         }
     ],
     seats: [
@@ -105,7 +117,7 @@ const defaultMascotJson={
             xPercent: 0.9,
             yPercent: 0.75,
             enabled: true,
-            character: -1
+            character: 1
         }
     ],
     maxMsgRecordsNum: 10,
@@ -113,6 +125,18 @@ const defaultMascotJson={
     port: 20042,
     windowSafeAreaExtendRate: 1.25
 };
+
+global.predefinedSeats=[
+    {xPercent:0.1,yPercent:0.25},
+    {xPercent:0.5,yPercent:0.25},
+    {xPercent:0.9,yPercent:0.25},
+    {xPercent:0.1,yPercent:0.5},
+    {xPercent:0.5,yPercent:0.5},
+    {xPercent:0.9,yPercent:0.5},
+    {xPercent:0.1,yPercent:0.75},
+    {xPercent:0.5,yPercent:0.75},
+    {xPercent:0.9,yPercent:0.75}
+];
 
 /**
  * 读取角色配置
@@ -156,8 +180,36 @@ module.exports={
     saveMascotData
 };
 
-//{seatWindow:window,seatCharacter:character}
+//{seatWindow:window,seatCharacter:character实例}
+//记录所有Character的实例，由于是直接通过seats下标设置元素的，可能有undefined的值
 global.seatWindows=[];
+global.findSeatIndexByCharacterIndex=function(characterIndex){
+    let seats=global.mascotData.seats;
+    for(var i=0;i<seats.length;i++){
+        if(seats[i].character===characterIndex){
+            return i;
+        }
+    }
+    return -1;
+};
+global.findSeatIndexByCharacterName=function(characterName){
+    let seats=global.mascotData.seats;
+    for(var i=0;i<seats.length;i++){
+        if(seats[i].character>=0&&global.mascotData.characters[seats[i].character].name===characterName){
+            return i;
+        }
+    }
+    return -1;
+};
+global.findCharacterIndexByName=function(name){
+    let characters=global.mascotData.characters;
+    for(var i=0;i<characters.length;i++){
+        if(characters[i].name===name){
+            return i;
+        }
+    }
+    return -1;
+}
 
 function loadScene(){
     let screenSize=screen.getPrimaryDisplay().workAreaSize;
@@ -189,14 +241,27 @@ function loadScene(){
         }else{
             sw.webContents.send('setInfo','Seat: '+i);
         }
-        global.seatWindows.push(sc);
+        global.seatWindows[i]=sc;
     }
 }
 
 function unloadScene(){
     for(var i=0;i<seatWindows.length;i++){
         global.seatWindows[i].seatWindow.destroy();
-        global.seatWindows[i].seatCharacter.leave();
+        global.seatWindows[i].seatCharacter.leaveCharacter();
     }
     global.seatWindows=[];
+}
+
+global.seatChangeCharacter=function(_seatIndex,_characterIndex){
+    let seats=global.mascotData.seats;
+    let characters=global.mascotData.characters;
+    let beforeCharacter=characters[seats[_seatIndex].character];
+    //false左true右
+    var beforeTowards=beforeCharacter.flipy^beforeCharacter.faceTowards;
+    characters[_characterIndex].flipy=beforeTowards^characters[_characterIndex].faceTowards;
+    global.seatWindows[_seatIndex].seatCharacter.leaveCharacter();
+    const Character=require('./'+global.mascotData.characters[seats[_seatIndex].character=_characterIndex].path+'/character.js');
+    global.seatWindows[_seatIndex].seatCharacter=new Character(global.seatWindows[_seatIndex].seatWindow,_seatIndex);
+    global.seatWindows[_seatIndex].seatCharacter.loadCharacter();
 }

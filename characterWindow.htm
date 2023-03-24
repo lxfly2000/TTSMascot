@@ -15,7 +15,7 @@
 			#img1{
 				-webkit-app-region: drag;
 				/*因为矩阵的前后顺序原因，变换的应用顺序是从右往左*/
-				transform: translate(-50%, -50%) rotateY(180deg) scaleY(1);
+				/*transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg) scaleY(1);*/
 				transform-origin: 50% 100%;
 				position: absolute;
 				top: 50%;
@@ -26,12 +26,14 @@
 		</style>
 	</head>
 	<body>
+		<audio id="audio1" autoplay onended="audioEnd()">当前浏览器不支持Audio.</audio>
 		<img id="img1"/>
 	</body>
 	<script>
 		const {ipcRenderer} = require('electron');
 		window.addEventListener('DOMContentLoaded', () => {
 			ipcRenderer.on('setCharacter',(event,data)=>{
+				window.seatIndex=data.seat;
 				img1.src=data.url;
 				document.title=data.name;
 				if(data.width>0){
@@ -39,11 +41,21 @@
 				}else if(data.height>0){
 					img1.style.height=data.height+"px";
 				}
+				var ts='translate(-50%, -50%) rotateX(0deg) rotateY(0deg) scaleY(1)';
+				ts=ts.replace(/rotateX\(\d+deg\)/,data.flipx?'rotateX(180deg)':'rotateX(0deg)');
+				ts=ts.replace(/rotateY\(\d+deg\)/,data.flipy?'rotateY(180deg)':'rotateY(0deg)');
+				img1.style.transform=ts;
 			});
 			ipcRenderer.on('setInfo',(event,data)=>{
 				document.title=data;
 				document.body.innerHTML='<div class="RectBg">'+data+'</div>';
 			});
+			ipcRenderer.on('playAudio',(event,data)=>{
+				audio1.src=data;
+			});
 		});
+		function audioEnd(){
+			ipcRenderer.send('audioEnd',window.seatIndex);
+		}
 	</script>
 </html>

@@ -27,8 +27,9 @@ function startServer(){
             });
         }else{
             response.statusCode=405;
-            response.end('不支持的方法。\n使用方法：\nPOST /action\n{\n\t"character":角色编号,'+
-            '\n\t"seat":位置编号,\n\t"sender":发送者编号,\n\t"subtitle":"显示内容",\n\t"voice":"朗读内容"\n}');
+            response.end('不支持的方法。\n使用方法：\nPOST /action\n{\n\t"character":角色编号（设为-1为不指定具体角色）,'+
+            '\n\t"sender":发送者编号,\n\t"subtitle":"显示内容",\n\t"voice":"朗读内容"\n}\n'+
+            '注意：所有属性均不能缺省或设为null.');
         }
     });
 
@@ -37,16 +38,76 @@ function startServer(){
     });
 }
 
-var requestRecords=[];//[{sender:###,character:###}]
+var requestRecords=[];//[{sender:###(id),character:###(index)}]
+//这是反向查询的
+function findSenderIndexReverse(_sender){
+    for(var i=requestRecords.length-1;i>=0;i--){
+        if(requestRecords[i].sender===_sender){
+            return i;
+        }
+    }
+    return -1;
+}
+//找空闲已显示且最久没说话的characterIndex
+function findIdleLeastSpeakCharacter(){
+    var displayedCharacter=[],silentCount=[];
+    //i即为seat索引
+    for(var i=0;i<global.mascotData.seats.length;i++){
+        var characterIndex=global.mascotData.seats[i].character;
+        if(characterIndex>=0&&!global.seatWindows[i].seatCharacter.isSpeaking()){
+            displayedCharacter.push(characterIndex);
+            silentCount.push(0);
+        }
+    }
+    for(var i=requestRecords.length-1;i>=0;i--){
+        var index=displayedCharacter.findIndex(e=>e===requestRecords[i].character);
+        if(index==-1){
+            silentCount[index]++;
+        }
+    }
+    var leastSpeakIndex=0;
+    for(var i=0;i<silentCount.length;i++){
+        if(silentCount[i]>silentCount[leastSpeakIndex]){
+            leastSpeakIndex=i;
+        }
+    }
+    return displayedCharacter[leastSpeakIndex];
+}
 
+//_character:若未指定则将它设为-1（必须的）
 function processRequest(_character,_sender,_subtitle,_voice){
-    //TODO
-    console.log("TODO:Request");
+    let seatIndex;
+    if(typeof(_character)==='string'){
+        _character=global.findCharacterIndexByName(_character);
+    }
+    if(_character>=0){//若已指定
+        seatIndex=global.findSeatIndexByCharacterIndex(_character);
+        if(seatIndex===-1){
+            seatIndex=findIdleLeastSpeakCharacter();
+            global.seatChangeCharacter(seatIndex,_character);
+        }
+    }else{//若未指定
+        var senderIndex=findSenderIndexReverse(_sender);
+        var ok=false;
+        if(senderIndex>=0){
+            _character=requestRecords[senderIndex].character;
+            seatIndex=global.findSeatIndexByCharacterIndex(_character);
+            if(seatIndex>=0&&!global.seatWindows[seatIndex].seatCharacter.isSpeaking()){
+                ok=true;
+            }
+        }
+        if(!ok){
+            seatIndex=findIdleLeastSpeakCharacter();
+            _character=global.mascotData.seats[seatIndex].character;
+        }
+    }
+    global.seatWindows[seatIndex].seatCharacter.speak(_voice);
+    global.seatWindows[seatIndex].seatCharacter.showMsg(_subtitle);
+    //记录的数据任何属性都不能为null或undefined！！
     requestRecords.push({sender:_sender,character:_character});
     while(requestRecords.length>global.mascotData.maxMsgRecordsNum){
         requestRecords.shift();
     }
-    console.debug("Now:"+requestRecords.length);
 }
 
 /**
