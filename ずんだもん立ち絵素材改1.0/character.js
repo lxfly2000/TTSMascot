@@ -93,7 +93,8 @@ class Character{
                 let wPopup=global.seatWindows[this.seatIndex].seatPopup;
                 global.seatWindows[this.seatIndex].widthPopup=data.width;
                 global.seatWindows[this.seatIndex].heightPopup=data.height;
-                this._calcPopupWindowPos(data.width,data.height);
+                var dir=this._calcPopupWindowPos(data.width,data.height);
+                console.log('Popup direction: '+dir);
                 wPopup.setBounds({
                     x:Math.floor(this.xPopup-Math.ceil(data.width*global.mascotData.windowSafeAreaExtendRate/2)),
                     y:Math.floor(this.yPopup-Math.ceil(data.height*global.mascotData.windowSafeAreaExtendRate/2)),
@@ -101,7 +102,8 @@ class Character{
                     height:Math.ceil(data.height*global.mascotData.windowSafeAreaExtendRate)
                 });
                 //减了一个6分高度是因为立绘的嘴通常在上半身2/3处
-                wPopup.webContents.send('setRotDeg',Math.atan2(screenSize.height*s.yPercent-this.psdHeight/6-this.yPopup,screenSize.width*s.xPercent-this.xPopup)*180/Math.PI);
+                var cWindowHeight=this.usingWindow.getBounds().height/global.mascotData.windowSafeAreaExtendRate;
+                wPopup.webContents.send('setRotDeg',Math.atan2(screenSize.height*s.yPercent-cWindowHeight/6-this.yPopup,screenSize.width*s.xPercent-this.xPopup)*180/Math.PI);
                 wPopup.show();
             }
         });
@@ -113,6 +115,7 @@ class Character{
         }
     }
 
+    //0-3分别表示气泡在右，下，左，上方，-1表示没有合适的位置
     _calcPopupWindowPos(w,h){
         let character=global.mascotData.characters[global.mascotData.seats[this.seatIndex].character];
         let faceTowards=character.flipy^character.faceTowards;//false:左 true:右
@@ -121,47 +124,82 @@ class Character{
         headRect.y+=(headRect.height-headRect.height/global.mascotData.windowSafeAreaExtendRate)/2;
         headRect.width/=global.mascotData.windowSafeAreaExtendRate;
         headRect.height=headRect.height/global.mascotData.windowSafeAreaExtendRate/2;
-        let x=headRect.x,y=headRect.y+headRect.height;
+        let x,y;
+        if(faceTowards){
+            x=headRect.x+headRect.width/2;
+        }else{
+            x=headRect.x+headRect.width/2-w;
+        }
+        y=headRect.y+headRect.height+(global.mascotData.windowSafeAreaExtendRate-1)*h/2;
         //先往下找
         for(;!this._isRectOverScreen(x,y,w,h);y++){
             if(this._isRectNoOverlap(x,y,w,h)){
                 this.xPopup=x+w/2;
                 this.yPopup=y+h/2;
-                return;
+                return 1;
             }
         }
         //再往侧方向找
         if(faceTowards){
-            x=headRect.x+headRect.width;
+            x=headRect.x+headRect.width+(global.mascotData.windowSafeAreaExtendRate-1)*w/2;
             y=headRect.y;
             for(;!this._isRectOverScreen(x,y,w,h);x++){
                 if(this._isRectNoOverlap(x,y,w,h)){
                     this.xPopup=x+w/2;
                     this.yPopup=y+h/2;    
-                    return;
+                    return 0;
                 }
             }
         }else{
-            x=headRect.x-w;
+            x=headRect.x-w-(global.mascotData.windowSafeAreaExtendRate-1)*w/2;
             y=headRect.y;
             for(;!this._isRectOverScreen(x,y,w,h);x--){
                 if(this._isRectNoOverlap(x,y,w,h)){
                     this.xPopup=x+w/2;
                     this.yPopup=y+h/2;    
-                    return;
+                    return 2;
                 }
             }
         }
-        //最后往上找
-        x=headRect.x;
-        y=headRect.y-h;
+        //往上找
+        if(faceTowards){
+            x=headRect.x+headRect.width/2;
+        }else{
+            x=headRect.x+headRect.width/2-w;
+        }
+        y=headRect.y-h-(global.mascotData.windowSafeAreaExtendRate-1)*h/2;
         for(;this._isRectOverScreen(x,y,w,h);y--){
             if(this._isRectNoOverlap(x,y,w,h)){
                 this.xPopup=x+w/2;
                 this.yPopup=y+h/2;
-                return;
+                return 3;
             }
         }
+        //再往另一侧方向找
+        if(!faceTowards){
+            x=headRect.x+headRect.width+(global.mascotData.windowSafeAreaExtendRate-1)*w/2;
+            y=headRect.y;
+            for(;!this._isRectOverScreen(x,y,w,h);x++){
+                if(this._isRectNoOverlap(x,y,w,h)){
+                    this.xPopup=x+w/2;
+                    this.yPopup=y+h/2;    
+                    return 0;
+                }
+            }
+        }else{
+            x=headRect.x-w-(global.mascotData.windowSafeAreaExtendRate-1)*w/2;
+            y=headRect.y;
+            for(;!this._isRectOverScreen(x,y,w,h);x--){
+                if(this._isRectNoOverlap(x,y,w,h)){
+                    this.xPopup=x+w/2;
+                    this.yPopup=y+h/2;    
+                    return 2;
+                }
+            }
+        }
+        this.xPopup=headRect.x+headRect.width/2;
+        this.yPopup=headRect.y-h/2-(global.mascotData.windowSafeAreaExtendRate-1)*h/2;
+        return -1;
     }
 
     _isRectNoOverlap(x,y,w,h){
@@ -338,14 +376,10 @@ class Character{
             lineCounter++;
             if(str[i]==='\n'){
                 lineCounter=0;
-            }
-            if(str[i].match(regexBreakChars)!==null){
-                if(lineCounter>=minLineBreakPos){
-                    multilineStr+='\n';
-                    lineCounter=0;
-                }
-            }
-            if(lineCounter>=maxLineBreakPos){
+            }else if(lineCounter>=maxLineBreakPos){
+                multilineStr+='\n';
+                lineCounter=0;
+            }else if(lineCounter>=minLineBreakPos&&str[i].match(regexBreakChars)!==null){
                 multilineStr+='\n';
                 lineCounter=0;
             }
@@ -361,8 +395,8 @@ class Character{
         subtitle=this._breakToMultilineText(subtitle);
         let s=global.mascotData.seats[this.seatIndex];
         let c=global.mascotData.characters[s.character];
+        let screenSize=screen.getPrimaryDisplay().workAreaSize;
         if(global.seatWindows[this.seatIndex].seatPopup===null){
-            let screenSize=screen.getPrimaryDisplay().workAreaSize;
             global.seatWindows[this.seatIndex].seatPopup=new BrowserWindow({
                 width:screenSize.width,
                 height:screenSize.height,
@@ -377,7 +411,9 @@ class Character{
                     contextIsolation:false
                 }
             });
-            global.seatWindows[this.seatIndex].seatPopup.loadFile('textBubble.htm');
+            global.seatWindows[this.seatIndex].seatPopup.loadFile('textBubbleWindow.htm');
+        }else{
+            global.seatWindows[this.seatIndex].seatPopup.setSize(screenSize.width,screenSize.height);
         }
         var setTextData={
             seat:this.seatIndex,

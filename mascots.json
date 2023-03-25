@@ -7,7 +7,7 @@
 			"flipy": true,
 			"name": "俊达萌",
 			"color1": "#58A33C",
-			"color2": "",
+			"color2": "white",
 			"definedWidthPx": 300,
 			"definedHeightPx": 0,
 			"faceTowards": false
@@ -19,7 +19,7 @@
 			"flipy": false,
 			"name": "栗田Maron",
 			"color1": "#B9908C",
-			"color2": "",
+			"color2": "white",
 			"definedWidthPx": 300,
 			"definedHeightPx": 0,
 			"faceTowards": false
@@ -31,7 +31,7 @@
 			"flipy": false,
 			"name": "东北切蒲英",
 			"color1": "#934060",
-			"color2": "",
+			"color2": "white",
 			"definedWidthPx": 300,
 			"definedHeightPx": 0,
 			"faceTowards": false
@@ -39,8 +39,8 @@
 	],
 	"seats": [
 		{
-			"xPercent": 0.109375,
-			"yPercent": 0.7452038369304557,
+			"xPercent": 0.9010416666666666,
+			"yPercent": 0.512589928057554,
 			"enabled": true,
 			"character": 0
 		},
@@ -55,6 +55,6 @@
 	"showManagerWindowOnStartup": false,
 	"port": "20042",
 	"windowSafeAreaExtendRate": "1.25",
-	"minLineBreakPos": "10",
-	"maxLineBreakPos": "30"
+	"minLineBreakPos": "30",
+	"maxLineBreakPos": "100"
 }

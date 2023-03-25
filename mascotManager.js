@@ -90,7 +90,7 @@ const defaultMascotJson={
             flipy: true,
             name: "俊达萌",
             color1: "#58A33C",
-            color2: "",
+            color2: "white",
             definedWidthPx: 300,
             definedHeightPx: 0,
             faceTowards: false//false为向左或居中，true为向右
@@ -102,7 +102,7 @@ const defaultMascotJson={
             flipy: false,
             name: "栗田Maron",
             color1: "#B9908C",
-            color2: "",
+            color2: "white",
             definedWidthPx: 300,
             definedHeightPx: 0,
             faceTowards: false//false为向左或居中，true为向右
@@ -113,7 +113,7 @@ const defaultMascotJson={
             flipy:false,
             name:"东北切蒲英",
             color1:"#934060",
-            color2:"",
+            color2:"white",
             definedWidthPx:300,
             definedHeightPx:0,
             faceTowards:false//false为向左或居中，true为向右
@@ -137,8 +137,8 @@ const defaultMascotJson={
     showManagerWindowOnStartup: true,
     port: 20042,
     windowSafeAreaExtendRate: 1.25,
-    minLineBreakPos:10,
-    maxLineBreakPos:30
+    minLineBreakPos:30,
+    maxLineBreakPos:100
 };
 
 global.predefinedSeats=[
