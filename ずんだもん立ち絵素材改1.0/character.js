@@ -6,9 +6,15 @@ class Character{
     constructor(bw,_seatIndex){
         this.usingWindow=bw;
         this.seatIndex=_seatIndex;
+        global.seatWindows[this.seatIndex].seatPopup=null;
+        global.seatWindows[this.seatIndex].widthPopup=0;
+        global.seatWindows[this.seatIndex].heightPopup=0;
         this.speaking=false;
         this.psdWidth=0;
         this.psdHeight=0;
+        //这个指绝对位置，窗口中心坐标
+        this.xPopup=0;
+        this.yPopup=0;
         this.currentState='normal';
         //psdResources由程序动态生成，实际存储的是Image对象
         //{
@@ -59,12 +65,44 @@ class Character{
                 {fileName:'ずんだもん立ち絵素材改.psd',layers:[]}
             ]}
         };
+        this.usingWindow.on('moved',e=>{
+            const bounds=this.usingWindow.getBounds();
+            let screenSize=screen.getPrimaryDisplay().workAreaSize;
+            let seats=global.mascotData.seats;
+            seats[this.seatIndex].xPercent=(bounds.x+bounds.width/2)/screenSize.width;
+            seats[this.seatIndex].yPercent=(bounds.y+bounds.height/2)/screenSize.height;
+            global.saveMascotData();
+        });
         this.waitingQueue=[];//{voice:"",subtitle:""}
         ipcMain.on('audioEnd',(event,data)=>{
             if(data===this.seatIndex){
                 this.speaking=false;
                 console.log('Speaking voice finished.');
                 this._speakIfIdle();
+                if(global.seatWindows[this.seatIndex].seatPopup!==null){
+                    global.seatWindows[this.seatIndex].seatPopup.destroy();
+                    global.seatWindows[this.seatIndex].seatPopup=null;
+                }
+            }
+        });
+        ipcMain.on('computedRect',(event,data)=>{
+            //data:{seat,width,height}
+            if(data.seat===this.seatIndex){
+                let screenSize=screen.getPrimaryDisplay().workAreaSize;
+                let s=global.mascotData.seats[this.seatIndex];
+                let wPopup=global.seatWindows[this.seatIndex].seatPopup;
+                global.seatWindows[this.seatIndex].widthPopup=data.width;
+                global.seatWindows[this.seatIndex].heightPopup=data.height;
+                this._calcPopupWindowPos(data.width,data.height);
+                wPopup.setBounds({
+                    x:Math.floor(this.xPopup-Math.ceil(data.width*global.mascotData.windowSafeAreaExtendRate/2)),
+                    y:Math.floor(this.yPopup-Math.ceil(data.height*global.mascotData.windowSafeAreaExtendRate/2)),
+                    width:Math.ceil(data.width*global.mascotData.windowSafeAreaExtendRate),
+                    height:Math.ceil(data.height*global.mascotData.windowSafeAreaExtendRate)
+                });
+                //减了一个6分高度是因为立绘的嘴通常在上半身2/3处
+                wPopup.webContents.send('setRotDeg',Math.atan2(screenSize.height*s.yPercent-this.psdHeight/6-this.yPopup,screenSize.width*s.xPercent-this.xPopup)*180/Math.PI);
+                wPopup.show();
             }
         });
         for(var k in this.expressionSettings){
@@ -75,12 +113,106 @@ class Character{
         }
     }
 
+    _calcPopupWindowPos(w,h){
+        let character=global.mascotData.characters[global.mascotData.seats[this.seatIndex].character];
+        let faceTowards=character.flipy^character.faceTowards;//false:左 true:右
+        let headRect=this.usingWindow.getBounds();
+        headRect.x+=(headRect.width-headRect.width/global.mascotData.windowSafeAreaExtendRate)/2;
+        headRect.y+=(headRect.height-headRect.height/global.mascotData.windowSafeAreaExtendRate)/2;
+        headRect.width/=global.mascotData.windowSafeAreaExtendRate;
+        headRect.height=headRect.height/global.mascotData.windowSafeAreaExtendRate/2;
+        let x=headRect.x,y=headRect.y+headRect.height;
+        //先往下找
+        for(;!this._isRectOverScreen(x,y,w,h);y++){
+            if(this._isRectNoOverlap(x,y,w,h)){
+                this.xPopup=x+w/2;
+                this.yPopup=y+h/2;
+                return;
+            }
+        }
+        //再往侧方向找
+        if(faceTowards){
+            x=headRect.x+headRect.width;
+            y=headRect.y;
+            for(;!this._isRectOverScreen(x,y,w,h);x++){
+                if(this._isRectNoOverlap(x,y,w,h)){
+                    this.xPopup=x+w/2;
+                    this.yPopup=y+h/2;    
+                    return;
+                }
+            }
+        }else{
+            x=headRect.x-w;
+            y=headRect.y;
+            for(;!this._isRectOverScreen(x,y,w,h);x--){
+                if(this._isRectNoOverlap(x,y,w,h)){
+                    this.xPopup=x+w/2;
+                    this.yPopup=y+h/2;    
+                    return;
+                }
+            }
+        }
+        //最后往上找
+        x=headRect.x;
+        y=headRect.y-h;
+        for(;this._isRectOverScreen(x,y,w,h);y--){
+            if(this._isRectNoOverlap(x,y,w,h)){
+                this.xPopup=x+w/2;
+                this.yPopup=y+h/2;
+                return;
+            }
+        }
+    }
+
+    _isRectNoOverlap(x,y,w,h){
+        for(var i=0;i<global.seatWindows.length;i++){
+            if(i!==this.seatIndex&&this._checkOverlapWithPopupWindow(x,y,w,h,i)){
+                return false;
+            }
+            if(this._checkOverlapWithCharacterWindow(x,y,w,h,i)){
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    _isRectOverScreen(x,y,w,h){
+        let screenSize=screen.getPrimaryDisplay().workAreaSize;
+        return x<0||y<0||x+w>=screenSize.width||y+h>=screenSize.height;
+    }
+
+    //返回true表示有重叠部分
+    _checkOverlapWithCharacterWindow(x,y,w,h,seat){
+        if(seat>=global.seatWindows.length){
+            return false;
+        }
+        let window=global.seatWindows[seat].seatWindow.getBounds();
+        window.x+=(window.width-window.width/global.mascotData.windowSafeAreaExtendRate)/2;
+        window.y+=(window.height-window.height/global.mascotData.windowSafeAreaExtendRate)/2;
+        window.width/=global.mascotData.windowSafeAreaExtendRate;
+        window.height=window.height/global.mascotData.windowSafeAreaExtendRate/2;//此处/2是因为立绘的下半身是可以适当覆盖的
+        return Math.max(0,Math.min(x+w,window.x+window.width)-Math.max(x,window.x))*Math.max(0,Math.min(y+h,window.y+window.height)-Math.max(y,window.y))>0;
+    }
+
+    //返回true表示有重叠部分
+    _checkOverlapWithPopupWindow(x,y,w,h,seat){
+        if(seat>=global.seatWindows.length||global.seatWindows[seat].seatPopup===null){
+            return false;
+        }
+        let window=global.seatWindows[seat].seatPopup.getBounds();
+        window.x+=(window.width-global.seatWindows[seat].widthPopup)/2;
+        window.y+=(window.height-global.seatWindows[seat].heightPopup)/2;
+        window.width=global.seatWindows[seat].widthPopup;
+        window.height=global.seatWindows[seat].heightPopup;
+        return Math.max(0,Math.min(x+w,window.x+window.width)-Math.max(x,window.x))*Math.max(0,Math.min(y+h,window.y+window.height)-Math.max(y,window.y))>0;
+    }
+
     _loadPSD(stateName,fileName,enabledLayers){
         var psdpath=__dirname+'/'+fileName;
         var psdfile=PSD.fromFile(psdpath);
         //TODO:根据enabledLayers调整图层
         if(psdfile.parse()){
-            let psdinfo=psdfile.tree.export();
+            let psdinfo=psdfile.tree().export();
             this.psdWidth=psdinfo.document.width;
             this.psdHeight=psdinfo.document.height;
             this.psdResources[stateName].push(psdfile.image.toPng());
@@ -154,7 +286,7 @@ class Character{
     }
 
     _speak(str,subtitle){
-        if(_processInstructions(subtitle)){
+        if(this._processInstructions(subtitle)){
             this._speakVoice(str);
             this._speakShowMsg(subtitle);
         }
@@ -180,8 +312,8 @@ class Character{
         const posKeywords=['左上','上','右上','左','中','右','左下','下','右下'];
         let posIndex=posKeywords.findIndex(e=>'['+e+']'===str);
         if(posIndex!==-1){
-            characters[seats[this.seatIndex].character].xPercent=global.predefinedSeats[posIndex].xPercent;
-            characters[seats[this.seatIndex].character].yPercent=global.predefinedSeats[posIndex].yPercent;
+            seats[this.seatIndex].xPercent=global.predefinedSeats[posIndex].xPercent;
+            seats[this.seatIndex].yPercent=global.predefinedSeats[posIndex].yPercent;
             global.saveMascotData();
             this.loadCharacter();
             return false;
@@ -194,20 +326,66 @@ class Character{
         return true;
     }
 
+    _breakToMultilineText(str){
+        const minLineBreakPos=global.mascotData.minLineBreakPos;
+        const maxLineBreakPos=global.mascotData.maxLineBreakPos;
+        //从最小断句数起，若遇到断字符，添加换行，重新计数，若到最大断句数，无条件换行
+        let multilineStr='';
+        var lineCounter=0;
+        const regexBreakChars=/[,.!?:;\- ，。！？、：；…—]/;
+        for(var i=0;i<str.length;i++){
+            multilineStr+=str[i];
+            lineCounter++;
+            if(str[i]==='\n'){
+                lineCounter=0;
+            }
+            if(str[i].match(regexBreakChars)!==null){
+                if(lineCounter>=minLineBreakPos){
+                    multilineStr+='\n';
+                    lineCounter=0;
+                }
+            }
+            if(lineCounter>=maxLineBreakPos){
+                multilineStr+='\n';
+                lineCounter=0;
+            }
+        }
+        return multilineStr;
+    }
+
+    //setText:{seat,msg,color1,color2}
     _speakShowMsg(subtitle){
         if(subtitle===''){
             return;
         }
-        //TODO:显示subtitle
-        if(global.seatWindows[this.seatIndex].seatPopup===undefined){
+        subtitle=this._breakToMultilineText(subtitle);
+        let s=global.mascotData.seats[this.seatIndex];
+        let c=global.mascotData.characters[s.character];
+        if(global.seatWindows[this.seatIndex].seatPopup===null){
+            let screenSize=screen.getPrimaryDisplay().workAreaSize;
             global.seatWindows[this.seatIndex].seatPopup=new BrowserWindow({
-                //TODO:确定窗口位置等
+                width:screenSize.width,
+                height:screenSize.height,
+                useContentSize:true,
+                frame:false,
+                transparent:true,
+                alwaysOnTop:true,
+                show:false,
+                skipTaskbar:true,
+                webPreferences:{
+                    nodeIntegration:true,
+                    contextIsolation:false
+                }
             });
-        }else{
-            global.seatWindows[this.seatIndex].seatPopup.show();
-            //TODO:可能还需要发送角色的窗口信息
-            global.seatWindows[this.seatIndex].seatPopup.webContents.send('setSubtitle','subtitle');
+            global.seatWindows[this.seatIndex].seatPopup.loadFile('textBubble.htm');
         }
+        var setTextData={
+            seat:this.seatIndex,
+            msg:subtitle,
+            color1:c.color1,
+            color2:c.color2
+        };
+        global.seatWindows[this.seatIndex].seatPopup.webContents.send('setText',setTextData);
     }
 
     _speakVoice(str){

@@ -89,7 +89,8 @@ const defaultMascotJson={
             flipx: false,
             flipy: true,
             name: "俊达萌",
-            color: "#58A33C",
+            color1: "#58A33C",
+            color2: "",
             definedWidthPx: 300,
             definedHeightPx: 0,
             faceTowards: false//false为向左或居中，true为向右
@@ -100,7 +101,8 @@ const defaultMascotJson={
             flipx: false,
             flipy: false,
             name: "栗田Maron",
-            color: "#B9908C",
+            color1: "#B9908C",
+            color2: "",
             definedWidthPx: 300,
             definedHeightPx: 0,
             faceTowards: false//false为向左或居中，true为向右
@@ -110,7 +112,8 @@ const defaultMascotJson={
             flipx:false,
             flipy:false,
             name:"东北切蒲英",
-            color:"#934060",
+            color1:"#934060",
+            color2:"",
             definedWidthPx:300,
             definedHeightPx:0,
             faceTowards:false//false为向左或居中，true为向右
@@ -133,7 +136,9 @@ const defaultMascotJson={
     maxMsgRecordsNum: 10,
     showManagerWindowOnStartup: true,
     port: 20042,
-    windowSafeAreaExtendRate: 1.25
+    windowSafeAreaExtendRate: 1.25,
+    minLineBreakPos:10,
+    maxLineBreakPos:30
 };
 
 global.predefinedSeats=[
@@ -240,6 +245,7 @@ function loadScene(){
         });
         sw.loadFile('characterWindow.htm');
         let sc={seatWindow:sw,seatCharacter:null};
+        global.seatWindows[i]=sc;
         if(seats[i].character>=0){
             const Character=require('./'+global.mascotData.characters[seats[i].character].path+'/character.js');
             sc.seatCharacter=new Character(sw,i);
@@ -247,7 +253,6 @@ function loadScene(){
         }else{
             sw.webContents.send('setInfo','Seat: '+i);
         }
-        global.seatWindows[i]=sc;
     }
 }
 

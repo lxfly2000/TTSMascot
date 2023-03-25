@@ -5,6 +5,9 @@ class Character{
     constructor(bw,_seatIndex){
         this.usingWindow=bw;
         this.seatIndex=_seatIndex;
+        global.seatWindows[this.seatIndex].seatPopup=null;
+        global.seatWindows[this.seatIndex].widthPopup=0;
+        global.seatWindows[this.seatIndex].heightPopup=0;
     }
     
     loadCharacter(){

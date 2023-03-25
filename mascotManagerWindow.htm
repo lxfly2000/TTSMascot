@@ -27,6 +27,12 @@
 			<tr>
 				<td><label for="editSafeAreaExtendRate">窗口安全区扩展倍率：</label></td><td><input type="number" step="0.01" id="editSafeAreaExtendRate" min="1"/></td>
 			</tr>
+			<tr>
+				<td><label for="editMinBreakCount">最小断句字数：</label></td><td><input type="number" id="editMinBreakCount" min="1"/></td>
+			</tr>
+			<tr>
+				<td><label for="editMaxBreakCount">最大断句字数：</label></td><td><input type="number" id="editMaxBreakCount" min="1"/></td>
+			</tr>
 		</table>
 		<p>标*的项目需要重启后才能使修改生效。</p>
 		<button onclick="SaveConfig()">保存设置</button>
@@ -46,12 +52,16 @@
 			checkShowManagerWindowOnStartup.checked=tempJson.showManagerWindowOnStartup;
 			editSafeAreaExtendRate.value=tempJson.windowSafeAreaExtendRate;
 			editListenPort.value=tempJson.port;
+			editMinBreakCount.value=tempJson.minLineBreakPos;
+			editMaxBreakCount.value=tempJson.maxLineBreakPos;
 		}
 		function SaveConfig(){
 			tempJson.maxMsgRecordsNum=editMaxRecordsNum.value;
 			tempJson.showManagerWindowOnStartup=checkShowManagerWindowOnStartup.checked;
 			tempJson.port=editListenPort.value;
 			tempJson.windowSafeAreaExtendRate=editSafeAreaExtendRate.value;
+			tempJson.minLineBreakPos=editMinBreakCount.value;
+			tempJson.maxLineBreakPos=editMaxBreakCount.value;
 			ipcRenderer.send('saveConfig',tempJson);
 			close();
 		}

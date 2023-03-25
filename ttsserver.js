@@ -19,7 +19,12 @@ function startServer(){
                     let jsondata=JSON.parse(new TextDecoder().decode(new Uint8Array(postdata)));
                     response.statusCode=200;
                     response.end("您请求的数据为：\n"+JSON.stringify(jsondata));
-                    processRequest(jsondata.character,jsondata.sender,jsondata.subtitle,jsondata.voice);
+                    try{
+                        processRequest(jsondata.character,jsondata.sender,jsondata.subtitle,jsondata.voice);
+                    }catch(e){
+                        console.error('Error: '+e);
+                        debugger;
+                    }
                 }catch(e){
                     response.statusCode=400;
                     response.end("您发送的数据有误：\n"+e);

@@ -1,0 +1,81 @@
+<html>
+	<head>
+		<title>Text Bubble</title>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width,user-scalable=no"/>
+		<style>
+			.BubbleTextOutline{
+                -webkit-text-stroke: white 6px;
+                /*text-shadow: 6px 6px 3px gray;*/
+			}
+            .BubbleText{
+                color: #58A33C;
+            }
+            .BubbleBox{
+                border-radius: 20px;
+                color: transparent;
+                background-color: white;
+                /*filter: drop-shadow(6px 6px 3px gray);*/
+            }
+            .BubbleArrow{
+				transform: translate(-50%, -50%) rotateZ(0deg);
+				position: absolute;
+				top: 50%;
+				left: 50%;
+                width: 100%;
+                height: 100%;
+                background-color: white;
+                clip-path: polygon(50% 40%, 100% 50%, 50% 60%);
+            }
+            .SetText{
+                padding: 20px;
+				transform: translate(-50%, -50%);
+				position: absolute;
+				top: 50%;
+				left: 50%;
+                font-size: 36;
+                font-weight: 800;
+                box-sizing: border-box;
+            }
+            body{
+                /*隐藏可视区域外的元素，这会导致页面无法滚动，同时滚动条消失*/
+                overflow: hidden;
+                /*background-color: skyblue;*/
+            }
+            .BubbleBoxCombine{
+                opacity: 50%;
+            }
+		</style>
+	</head>
+	<body>
+        <div class="BubbleBoxCombine">
+            <div class="BubbleArrow"></div>
+            <div class="BubbleBox SetText">Text Bubble<br>文本显示</div>
+        </div>
+		<div class="BubbleTextOutline SetText">Text Bubble<br>文本显示</div>
+		<div class="BubbleText SetText">Text Bubble<br>文本显示</div>
+	</body>
+	<script>
+		const {ipcRenderer} = require('electron');
+		window.addEventListener('DOMContentLoaded', () => {
+			ipcRenderer.on('setText',(event,data)=>{
+                window.seatIndex=data.seat;
+                for(var d of document.getElementsByClassName('SetText')){
+                    d.innerText=data.msg;
+                }
+                document.getElementsByClassName('BubbleTextOutline')[0].style['-webkit-text-stroke']=data.color2+' 6px';
+                document.getElementsByClassName('BubbleText')[0].style.color=data.color1;
+                var rect=document.getElementsByClassName('BubbleBox')[0].getBoundingClientRect();
+                var crData={
+                    seat:window.seatIndex,
+                    width:rect.width,
+                    height:rect.height
+                };
+                ipcRenderer.send('computedRect',crData);
+			});
+            ipcRenderer.on('setRotDeg',(event,data)=>{
+                document.getElementsByClassName('BubbleArrow')[0].style.transform=`translate(-50%, -50%) rotateZ(${data.rotDeg}deg)`;
+            });
+		});
+	</script>
+</html>

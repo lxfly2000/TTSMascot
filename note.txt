@@ -2,7 +2,7 @@ global 中定义的全局变量
 global.mascotData.characters={...}
 global.mascotData.seats={...}
 global.predefinedSeats=[{xPercent:x,yPercent:y},...]
-global.seatWindows=[{seatWindow:window,seatPopup:window,seatCharacter:character实例},...]
+global.seatWindows=[{seatWindow:window,seatPopup:window,widthPopup:number,heightPopup:number,seatCharacter:character实例},...]
 global.findSeatIndexByCharacterIndex(characterIndex)
 global.findSeatIndexByCharacterName(characterName)
 global.findCharacterIndexByName(name)
