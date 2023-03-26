@@ -77,23 +77,43 @@
                     d.style.width=rect.width+'px';
                     d.style.height=rect.height+'px';
                 }
-                var crData={
+                window.crData={
                     seat:window.seatIndex,
                     width:rect.width,
                     height:rect.height
                 };
-                ipcRenderer.send('computedRect',crData);
+                ipcRenderer.send('computedRect',window.crData);
 			});
-            function rotXY(_x,_y,_theta){
-                let r=Math.sqrt(_x*_x+_y*_y);
-                let t=Math.atan2(_y,_x);
-                return{x:r*Math.cos(t+_theta)+50,y:r*Math.sin(t+_theta)+50};
-            }
             ipcRenderer.on('setRotDeg',(event,data)=>{
                 var arrowElem=document.getElementsByClassName('BubbleArrow')[0];
-                var angle=data*Math.PI/180;
-                var p=[rotXY(0,-10,angle),rotXY(50,0,angle),rotXY(0,10,angle)];
-                arrowElem.style.clipPath=`polygon(${p[0].x}% ${p[0].y}%,${p[1].x}% ${p[1].y}%,${p[2].x}% ${p[2].y}%)`;
+                var rotDeg=data.rot;
+                var arrowDirection=data.arrowDirection;//0-3分别表示右，下，左，上
+                var distanceFromCorner=40;//建议设为边框的吃圆角半径+padding
+                var posStrX=[],posStrY=[];
+                if(arrowDirection%2===0){//水平方向（向左，向右）
+                    var aLength=Math.min(window.crData.height/2,window.crData.width);
+                    posStrX[0]=posStrX[1]='50%';
+                    posStrY[0]=`calc(50% - ${aLength*0.75}px)`;
+                    posStrY[1]=`calc(50% + ${aLength*0.75}px)`;
+                    posStrY[2]=`calc(50% + ${(rotDeg>Math.PI/2?Math.PI*3/2-rotDeg:Math.abs(a+Math.PI/2))*window.crData.height/Math.PI-window.crData.height/2}px)`;
+                    if(Math.abs(rotDeg)>Math.PI/2){//左
+                        posStrX[2]='0%';
+                    }else{//右
+                        posStrX[2]='100%';
+                    }
+                }else{//垂直方向（向上，向下）
+                    var aLength=Math.min(window.crData.width/2,window.crData.height);
+                    posStrY[0]=posStrY[1]='50%';
+                    posStrX[0]=`calc(50% - ${aLength*0.75}px)`;
+                    posStrX[1]=`calc(50% + ${aLength*0.75}px)`;
+                    posStrX[2]=`calc(50% + ${window.crData.width/2-Math.abs(rotDeg)*window.crData.width/Math.PI}px)`;
+                    if(rotDeg>0){//下
+                        posStrY[2]='100%';
+                    }else{//上
+                        posStrY[2]='0%';
+                    }
+                }
+                arrowElem.style.clipPath=`polygon(${posStrX[0]} ${posStrY[0]},${posStrX[1]} ${posStrY[1]},${posStrX[2]} ${posStrY[2]})`;
             });
 		});
 	</script>

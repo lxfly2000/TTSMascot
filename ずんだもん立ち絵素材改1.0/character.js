@@ -95,15 +95,20 @@ class Character{
                 global.seatWindows[this.seatIndex].heightPopup=data.height;
                 var dir=this._calcPopupWindowPos(data.width,data.height);
                 console.log('Popup direction: '+dir);
+                var safeAreaDistance=Math.max(data.width,data.height)*(global.mascotData.windowSafeAreaExtendRate-1)/2;
                 wPopup.setBounds({
-                    x:Math.floor(this.xPopup-Math.ceil(data.width*global.mascotData.windowSafeAreaExtendRate/2)),
-                    y:Math.floor(this.yPopup-Math.ceil(data.height*global.mascotData.windowSafeAreaExtendRate/2)),
-                    width:Math.ceil(data.width*global.mascotData.windowSafeAreaExtendRate),
-                    height:Math.ceil(data.height*global.mascotData.windowSafeAreaExtendRate)
+                    x:Math.floor(this.xPopup-data.width/2-safeAreaDistance),
+                    y:Math.floor(this.yPopup-data.height/2-safeAreaDistance),
+                    width:Math.ceil(data.width+safeAreaDistance*2),
+                    height:Math.ceil(data.height+safeAreaDistance*2)
                 });
                 //减了一个6分高度是因为立绘的嘴通常在上半身2/3处
                 var cWindowHeight=this.usingWindow.getBounds().height/global.mascotData.windowSafeAreaExtendRate;
-                wPopup.webContents.send('setRotDeg',Math.atan2(screenSize.height*s.yPercent-cWindowHeight/6-this.yPopup,screenSize.width*s.xPercent-this.xPopup)*180/Math.PI);
+                var setRotData={
+                    rot:this._calcAngle(this.xPopup,this.yPopup,screenSize.width*s.xPercent,screenSize.height*s.yPercent-cWindowHeight/6),
+                    arrowDirection:(dir+2)%4
+                };
+                wPopup.webContents.send('setRotDeg',setRotData);
                 wPopup.show();
             }
         });
@@ -115,7 +120,12 @@ class Character{
         }
     }
 
-    //0-3分别表示气泡在右，下，左，上方，-1表示没有合适的位置
+    _calcAngle(xFrom,yFrom,xTo,yTo){
+        console.debug(`[${xFrom*2.5},${yFrom*2.5}]->[${xTo*2.5},${yTo*2.5}] => ${Math.atan2(yTo-yFrom,xTo-xFrom)*180/Math.PI} degree`);
+        return Math.atan2(yTo-yFrom,xTo-xFrom);
+    }
+
+    //返回值0-3分别表示气泡在右，下，左，上方，-1表示没有合适的位置
     _calcPopupWindowPos(w,h){
         let character=global.mascotData.characters[global.mascotData.seats[this.seatIndex].character];
         let faceTowards=character.flipy^character.faceTowards;//false:左 true:右
@@ -168,7 +178,7 @@ class Character{
             x=headRect.x+headRect.width/2-w;
         }
         y=headRect.y-h-(global.mascotData.windowSafeAreaExtendRate-1)*h/2;
-        for(;this._isRectOverScreen(x,y,w,h);y--){
+        for(;!this._isRectOverScreen(x,y,w,h);y--){
             if(this._isRectNoOverlap(x,y,w,h)){
                 this.xPopup=x+w/2;
                 this.yPopup=y+h/2;
