@@ -95,7 +95,7 @@
                     posStrX[0]=posStrX[1]='50%';
                     posStrY[0]=`calc(50% - ${aLength*0.75}px)`;
                     posStrY[1]=`calc(50% + ${aLength*0.75}px)`;
-                    posStrY[2]=`calc(50% + ${(rotDeg>Math.PI/2?Math.PI*3/2-rotDeg:Math.abs(a+Math.PI/2))*window.crData.height/Math.PI-window.crData.height/2}px)`;
+                    posStrY[2]=`calc(50% + ${(rotDeg>Math.PI/2?Math.PI*3/2-rotDeg:Math.abs(rotDeg+Math.PI/2))*window.crData.height/Math.PI-window.crData.height/2}px)`;
                     if(Math.abs(rotDeg)>Math.PI/2){//左
                         posStrX[2]='0%';
                     }else{//右
