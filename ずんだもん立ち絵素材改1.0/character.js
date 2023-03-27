@@ -10,27 +10,70 @@ class Character{
         global.seatWindows[this.seatIndex].widthPopup=0;
         global.seatWindows[this.seatIndex].heightPopup=0;
         this.speaking=false;
-        this.psdWidth=0;
-        this.psdHeight=0;
         //这个指绝对位置，窗口中心坐标
         this.xPopup=0;
         this.yPopup=0;
         this.currentState='normal';
         //psdResources由程序动态生成，实际存储的是Image对象
         //{
-        //stateName1:[imageBase64Data1,imageBase64Data2,...]
-        //stateName2:[imageBase64Data1,imageBase64Data2,...]
+        //stateName1:[data1,data2,...]
+        //stateName2:[data1,data2,...]
         //...:[...]
+        //}
+        //其中data#又定义为下列形式：
+        //{
+        //psdWidth:number,
+        //psdHeight:number,
+        //layers:[{info:JSON,image:PNG},{info:JSON,image:PNG},...]
+        //}
+        //info的JSON数据为（示例）：
+        //{
+        //"type": "layer",
+        //"visible": true,
+        //"opacity": 1,
+        //"blendingMode": "normal",
+        //"name": "*直立",
+        //"left": 236,
+        //"right": 977,
+        //"top": 209,
+        //"bottom": 1507,
+        //"height": 1298,
+        //"width": 741,
+        //"mask": {},
+        //"image": {}
         //}
         this.psdResources={};
         this.expressionSettings={
             //通常状态
             normal:{keywords:[],layerSettings:[
-                {fileName:'ずんだもん立ち絵素材改.psd',layers:[]}//TODO:设定图层
+                {fileName:'ずんだもん立ち絵素材改.psd',layers:[//TODO:设定需要显示的图层
+                    '*頭_正面向き/!眉/*基本眉',
+                    '*頭_正面向き/!目/*普通目',
+                    '*頭_正面向き/!口/*むふ',
+                    '*頭_正面向き/!顔色/*ほっぺ基本',
+                    '*頭_正面向き/!枝豆/*枝豆通常',
+                    '*頭_正面向き/!頭',
+                    '!左腕/*基本',
+                    '!右腕/*基本(直立用)',
+                    '!体/*直立'
+                /*]},{fileName:'ずんだもん立ち絵素材改.psd',layers:[//TODO:第二种同类表情，以此类推
+                    '图层/路径/1',//TODO
+                    '图层/路径/2',*/
+                ]}
             ]},
             //说话状态
             speaking:{keywords:[],layerSettings:[
-                {fileName:'ずんだもん立ち絵素材改.psd',layers:[]}
+                {fileName:'ずんだもん立ち絵素材改.psd',layers:[
+                    '*頭_正面向き/!眉/*基本眉',
+                    '*頭_正面向き/!目/*普通目',
+                    '*頭_正面向き/!口/*ほあ',
+                    '*頭_正面向き/!顔色/*ほっぺ基本',
+                    '*頭_正面向き/!枝豆/*枝豆通常',
+                    '*頭_正面向き/!頭',
+                    '!左腕/*基本',
+                    '!右腕/*基本(直立用)',
+                    '!体/*直立'
+                ]}
             ]},
             //开心状态
             happy:{keywords:['嗯！','哈哈','是的','是呢','开心'],layerSettings:[
@@ -76,6 +119,7 @@ class Character{
         this.waitingQueue=[];//{voice:"",subtitle:""}
         ipcMain.on('audioEnd',(event,data)=>{
             if(data===this.seatIndex){
+                this._processInstructions('');
                 this.speaking=false;
                 console.log('Speaking voice finished.');
                 this._speakIfIdle();
@@ -258,12 +302,22 @@ class Character{
     _loadPSD(stateName,fileName,enabledLayers){
         var psdpath=__dirname+'/'+fileName;
         var psdfile=PSD.fromFile(psdpath);
-        //TODO:根据enabledLayers调整图层
+        //根据enabledLayers调整图层
         if(psdfile.parse()){
             let psdinfo=psdfile.tree().export();
-            this.psdWidth=psdinfo.document.width;
-            this.psdHeight=psdinfo.document.height;
-            this.psdResources[stateName].push(psdfile.image.toPng());
+            var layeredImage={
+                psdWidth:psdinfo.document.width,
+                psdHeight:psdinfo.document.height,
+                layers:[]
+            };
+            for(var layerPath of enabledLayers){
+                var layer=psdfile.tree().childrenAtPath(layerPath)[0];
+                layeredImage.layers.push({
+                    info:layer.export(),
+                    image:layer.toPng()
+                });
+            }
+            this.psdResources[stateName].push(layeredImage);
         }
     }
 
@@ -290,7 +344,7 @@ class Character{
         let s=global.mascotData.seats[this.seatIndex];
         let c=global.mascotData.characters[s.character];
         let setData={
-            url:null,
+            layeredImage:null,
             name:c.name,
             width:c.definedWidthPx*c.zoom,
             height:c.definedHeightPx*c.zoom,
@@ -298,10 +352,11 @@ class Character{
             flipy:c.flipy,
             seat:this.seatIndex
         };
+        var firstImageData=this.psdResources.normal[0];
         if(setData.width===0){
-            setData.width=this.psdWidth*setData.height/this.psdHeight;
+            setData.width=firstImageData.psdWidth*setData.height/firstImageData.psdHeight;
         }else if(setData.height===0){
-            setData.height=this.psdHeight*setData.width/this.psdWidth;
+            setData.height=firstImageData.psdHeight*setData.width/firstImageData.psdWidth;
         }
         const windowSafeAreaExtendRate=global.mascotData.windowSafeAreaExtendRate;
         this.usingWindow.setBounds({
@@ -310,11 +365,20 @@ class Character{
             width:Math.ceil(setData.width*windowSafeAreaExtendRate),
             height:Math.ceil(setData.height*windowSafeAreaExtendRate)
         });
-        var png=this._getStatePngRandom(this.currentState);
-        imageToBase64(png).then(contentBase64String=>{
-            setData.url=contentBase64String;
-            this.usingWindow.webContents.send('setCharacter',setData);
-        });
+        var psdData=this._getStatePngRandom(this.currentState);
+        var asyncI=0;
+        var thenTaskUsingWindow=this.usingWindow;
+        var thenTask=function(strBase64){
+            psdData.layers[asyncI].image=strBase64;
+            asyncI++;
+            if(asyncI>=psdData.layers.length){
+                setData.layeredImage=psdData;
+                thenTaskUsingWindow.webContents.send('setCharacter',setData);
+            }else{
+                imageToBase64(psdData.layers[asyncI].image).then(thenTask);
+            }
+        };
+        imageToBase64(psdData.layers[asyncI].image).then(thenTask);
     }
 
     isSpeaking(){
@@ -438,8 +502,6 @@ class Character{
         if(str===''){
             return;
         }
-        //TODO:
-        //应管理一个队列
         /**@type {HTTP.RequestOptions}*/
         const option={
             hostname:'127.0.0.1',
@@ -491,6 +553,10 @@ class Character{
 
 function imageToBase64(image) {
     return new Promise((resolve, reject) => {
+        if(typeof(image)==='string'){//若image已经是字符型说明已经被解析过了
+            resolve(image);
+            return;
+        }
         const chunks = [];
 
         image.pack();  // [1]

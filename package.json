@@ -22,10 +22,11 @@
     "url": "https://github.com/lxfly2000/TTSMascot/issues"
   },
   "homepage": "https://github.com/lxfly2000/TTSMascot#readme",
-  "devDependencies": {
-    "electron": "^23.1.4"
-  },
   "dependencies": {
+    "canvas": "^2.11.0",
     "psd": "^3.4.0"
+  },
+  "devDependencies": {
+    "electron": "^22.3.4"
   }
 }

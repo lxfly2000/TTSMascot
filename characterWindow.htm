@@ -37,7 +37,7 @@
 		window.addEventListener('DOMContentLoaded', () => {
 			ipcRenderer.on('setCharacter',(event,data)=>{
 				window.seatIndex=data.seat;
-				img1.src=data.url;
+				LayeredImageToDataUrl(data.layeredImage);
 				document.title=data.name;
 				if(data.width>0){
 					img1.style.width=data.width+"px";
@@ -59,6 +59,48 @@
 		});
 		function audioEnd(){
 			ipcRenderer.send('audioEnd',window.seatIndex);
+		}
+		const canvasTag=document.createElement('canvas');
+		function LayeredImageToDataUrl(layeredImage){
+			//其中data#又定义为下列形式：
+			//{
+			//psdWidth:number,
+			//psdHeight:number,
+			//layers:[{info:JSON,image:PNG},{info:JSON,image:PNG},...]
+			//}
+			//info的JSON数据为（示例）：
+			//{
+			//"type": "layer",
+			//"visible": true,
+			//"opacity": 1,
+			//"blendingMode": "normal",
+			//"name": "*直立",
+			//"left": 236,
+			//"right": 977,
+			//"top": 209,
+			//"bottom": 1507,
+			//"height": 1298,
+			//"width": 741,
+			//"mask": {},
+			//"image": {}
+			//}
+			canvasTag.width=layeredImage.psdWidth;
+			canvasTag.height=layeredImage.psdHeight;
+			var ctx=canvasTag.getContext('2d');
+			ctx.clearRect(0,0,canvasTag.width,canvasTag.height);
+			const loadImg=index=>new Promise((resolve,reject)=>{
+				var imgTag=new Image();
+				imgTag.src=layeredImage.layers[index].image;
+				imgTag.onload=(handler,event)=>{
+					ctx.drawImage(imgTag,layeredImage.layers[index].info.left,layeredImage.layers[index].info.top);
+					if(index-1>=0){
+						loadImg(index-1).then(resolve);
+					}else{
+						resolve();
+					}
+				};
+			});
+			loadImg(layeredImage.layers.length-1).then((resolve,reject)=>img1.src=canvasTag.toDataURL('image/png'));
 		}
 	</script>
 </html>

@@ -88,7 +88,6 @@
                 var arrowElem=document.getElementsByClassName('BubbleArrow')[0];
                 var rotDeg=data.rot;
                 var arrowDirection=data.arrowDirection;//0-3分别表示右，下，左，上
-                var distanceFromCorner=40;//建议设为边框的吃圆角半径+padding
                 var posStrX=[],posStrY=[];
                 if(arrowDirection%2===0){//水平方向（向左，向右）
                     var aLength=Math.min(window.crData.height/2,window.crData.width);
