@@ -6,7 +6,7 @@ class CharacterCommon{
         this.usingWindow=bw;
         this.seatIndex=_seatIndex;
         this.characterPath=_characterPath;
-        this.characterModule=require('./'+this.characterPath+'/character.js')(this,{sendAudioData,startSpeaking,finishSpeaking});
+        this.characterModule=require('./'+this.characterPath+'/character.js')(this,{sendAudioData,finishSpeaking});
         this._speakVoice=this.characterModule.speakVoice;
         global.seatWindows[this.seatIndex].seatPopup=null;
         global.seatWindows[this.seatIndex].widthPopup=0;
@@ -334,6 +334,7 @@ class CharacterCommon{
 
     _speak(str,subtitle){
         if(this._processInstructions(subtitle)){
+            this.speaking=true;
             this._speakVoice(str);
             this._speakShowMsg(subtitle);
         }
@@ -441,11 +442,6 @@ class CharacterCommon{
 //需要提供给各角色脚本的函数
 function sendAudioData(character,u8arrayData){
     character.usingWindow.webContents.send('playAudio',audioToBase64(u8arrayData));
-}
-
-//需要提供给各角色脚本的函数
-function startSpeaking(character){
-    character.speaking=true;
 }
 
 //需要提供给各角色脚本的函数

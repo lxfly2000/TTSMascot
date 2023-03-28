@@ -98,8 +98,7 @@ function speakVoice(str){
                     if(res2.statusCode===200){
                         res2.on('data',thunk=>resBody2.push(thunk));
                         res2.on('end',()=>{
-                            sendAudioData(this,resBody2);
-                            startSpeaking(this);
+                            sendAudioData(characterInstance,resBody2);
                             console.log(`Speaking voice: "${str}"`);
                         });
                     }
@@ -114,12 +113,13 @@ function speakVoice(str){
     req.end();
 }
 
-let characterInstance,sendAudioData,startSpeaking,finishSpeaking;
+let characterInstance;//表示Character对象
+let sendAudioData;//若需要由本程序播放音频，请调用此函数 sendAudioData(characterInstance,[WAV文件数组])
+let finishSpeaking;//若是由外部程序播放音频，需要在播放完成后手动调用此函数 finishSpeaking(characterInstance)
 
 module.exports=function(_characterInstance,_exposedFunctions){
     characterInstance=_characterInstance;
     sendAudioData=_exposedFunctions.sendAudioData;
-    startSpeaking=_exposedFunctions.startSpeaking;
     finishSpeaking=_exposedFunctions.finishSpeaking;
     return {expressionSettings,speakVoice};
 };
