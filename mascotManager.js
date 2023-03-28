@@ -81,7 +81,7 @@ function createManagerWindow(){
 
 const mascotJsonFileName='mascots.json';
 const defaultMascotJson={
-    //TODO:构建默认的配置
+    //构建默认的配置
     characters: [
         {
             path: "ずんだもん立ち絵素材改1.0",
