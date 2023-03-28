@@ -1,0 +1,33 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>TTS Mascot</title>
+    <meta name="viewport" content="width=device-width,user-scalable=no"/>
+</head>
+<body>
+    <table>
+        <tr>
+            <td><label for="editMsg">输入要发送的内容：</label></td>
+            <td><input type="text" id="editMsg" placeholder="输入…"/></td>
+        </tr>
+        <tr>
+            <td><label for="editCharacter">输入角色编号：</label></td>
+            <td><input type="number" id="editCharacter" min="-1" value="0" placeholder="输入…"/></td>
+        </tr>
+    </table>
+    <button onclick="Send()">发送</button>
+    <div id="labelStatus"></div>
+</body>
+<script>
+function Send(){
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST','/action');
+    xhr.send(JSON.stringify({character:editCharacter.value,sender:0,voice:editMsg.value,subtitle:editMsg.value}));
+    xhr.onreadystatechange=function(){
+        if(xhr.readyState===4&&xhr.status===200){
+            labelStatus.innerText=xhr.responseText;
+        }
+    };
+}
+</script>
+</html>

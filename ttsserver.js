@@ -1,3 +1,4 @@
+const { readFileSync } = require('fs');
 const HTTP = require('http');
 const { hostname } = require('os');
 
@@ -8,8 +9,8 @@ let server=null;
  */
 function startServer(){
     server=HTTP.createServer((request,response)=>{
-        response.setHeader('Content-Type','text/plain; charset=utf-8');
         if(request.method==="POST"&&request.url==="/action"){
+            response.setHeader('Content-Type','text/plain; charset=utf-8');
             const postdata=[];
             request.on('data',chunk=>{
                 postdata.push(...chunk);
@@ -30,6 +31,20 @@ function startServer(){
                     response.end("您发送的数据有误：\n"+e);
                 }
             });
+        }else if(request.method==="GET"&&request.headers['user-agent'].search('curl')===-1){
+            if(request.url==='/favicon.ico'){
+                response.setHeader('Content-Type','image/x-icon');
+                response.statusCode=200;
+                response.end(readFileSync('app.ico'));
+            }else if(request.url==='/'){
+                response.setHeader('Content-Type','text/html; charset=utf-8');
+                response.statusCode=200;
+                response.end(readFileSync('webIndex.htm'));
+            }else{
+                response.setHeader('Content-Type','text/plain; charset=utf-8');
+                response.statusCode=404;
+                response.end('Cannot find: '+request.url);
+            }
         }else{
             response.statusCode=405;
             response.end('不支持的方法。\n使用方法：\nPOST /action\n{\n\t"character":角色编号（设为-1为不指定具体角色）,'+
