@@ -1,90 +1,81 @@
-const PSD = require('psd');
-const {screen} = require('electron');
+const HTTP = require('http');
 
-class Character{
-    constructor(bw,_seatIndex){
-        this.usingWindow=bw;
-        this.seatIndex=_seatIndex;
-        global.seatWindows[this.seatIndex].seatPopup=null;
-        global.seatWindows[this.seatIndex].widthPopup=0;
-        global.seatWindows[this.seatIndex].heightPopup=0;
-    }
-    
-    loadCharacter(){
-        let screenSize=screen.getPrimaryDisplay().workAreaSize;
-        var psdpath=__dirname+'/kurita.psd';
-        var psdfile=PSD.fromFile(psdpath);
-        let s=global.mascotData.seats[this.seatIndex];
-        let c=global.mascotData.characters[s.character];
-        if(psdfile.parse()){
-            let setData={
-                url:null,
-                name:c.name,
-                width:c.definedWidthPx*c.zoom,
-                height:c.definedHeightPx*c.zoom,
-                flipx:c.flipx,
-                flipy:c.flipy
-            };
-            let psdinfo=psdfile.tree().export();
-            if(setData.width===0){
-                setData.width=psdinfo.document.width*setData.height/psdinfo.document.height;
-            }else if(setData.height===0){
-                setData.height=psdinfo.document.height*setData.width/psdinfo.document.width;
-            }
-            const windowSafeAreaExtendRate=global.mascotData.windowSafeAreaExtendRate;
-            this.usingWindow.setBounds({
-                x:Math.floor(screenSize.width*s.xPercent-Math.ceil(setData.width*windowSafeAreaExtendRate/2)),
-                y:Math.floor(screenSize.height*s.yPercent-Math.ceil(setData.height*windowSafeAreaExtendRate/2)),
-                width:Math.ceil(setData.width*windowSafeAreaExtendRate),
-                height:Math.ceil(setData.height*windowSafeAreaExtendRate)
-            });
-            var png=psdfile.image.toPng();
-            toBase64(png).then(contentBase64String=>{
-                setData.url=contentBase64String;
-                this.usingWindow.webContents.send('setCharacter',setData);
-            });
-        }
-    }
-
-    isSpeaking(){
-        return false;
-    }
-
-    speak(str){
-        //TODO:
-        //应管理一个队列
-        
-    }
-
-    showMsg(str){
-        //TODO:
-        //应管理一个队列
-    }
-
-    leaveCharacter(){
-        //TODO:
-    }
-}
-
-function setLayerVisible(psdfile,layerpath,visible){
-    //todo
-}
-
-const toBase64 = function(image) {
-    return new Promise((resolve, reject) => {
-        const chunks = [];
-
-        image.pack();  // [1]
-        image.on('data', (chunk) => {
-            chunks.push(chunk);  // [2]
-        });
-        image.on('end', () => {
-            resolve(`data:image/png;base64,${Buffer.concat(chunks).toString('base64')}`);  // [3]
-        });
-        image.on('error', (err) => {
-            reject(err);
-        });
-    });
+const expressionSettings={
+    //通常状态
+    normal:{keywords:[],layerSettings:[
+        {fileName:'kurita.psd',layers:[//TODO:设定需要显示的图层
+            '表情/目/5',
+            '表情/口/5',
+            '表情/眉/1',
+            '体'
+        /*]},{fileName:'kurita.psd',layers:[//TODO:第二种同类表情，以此类推
+            '图层/路径/1',//TODO
+            '图层/路径/2',*/
+        ]}
+    ]},
+    //说话状态
+    speaking:{keywords:[],layerSettings:[
+        {fileName:'kurita.psd',layers:[
+            '表情/目/5',
+            '表情/口/1',
+            '表情/眉/1',
+            '体'
+        ]}
+    ]},
+    //开心状态
+    happy:{keywords:['嗯！','哈哈','是的','是呢','开心'],layerSettings:[
+        {fileName:'kurita.psd',layers:[]}
+    ]},
+    //感叹状态
+    exclam:{keywords:['哦！','绝了','感叹'],layerSettings:[
+        {fileName:'kurita.psd',layers:[]}
+    ]},
+    //严肃或思考中的状态
+    serious:{keywords:['什么','吗？','严肃','思考'],layerSettings:[
+        {fileName:'kurita.psd',layers:[]}
+    ]},
+    //悲伤、痛苦或哭泣状态
+    sad:{keywords:['难受','不要','抱歉','唔唔','啊啊','悲伤','痛苦','哭泣'],layerSettings:[
+        {fileName:'kurita.psd',layers:[]}
+    ]},
+    //迷惑状态
+    confused:{keywords:['嗯…','怎么','迷惑'],layerSettings:[
+        {fileName:'kurita.psd',layers:[]}
+    ]},
+    //尴尬状态
+    embarrassed:{keywords:['原来','尬'],layerSettings:[
+        {fileName:'kurita.psd',layers:[
+            'その他/頬線',
+            'その他/頬',
+            '表情/目/9',
+            '表情/口/2',
+            '表情/眉/1',
+            '体'
+        ]}
+    ]},
+    //挑逗或欲望状态
+    joyful:{keywords:['让我','想要','你说','是不','挑逗','欲望'],layerSettings:[
+        {fileName:'kurita.psd',layers:[]}
+    ]},
+    //生气状态
+    angry:{keywords:['哼！','滚啊','你马','生气'],layerSettings:[
+        {fileName:'kurita.psd',layers:[]}
+    ]}
 };
 
-module.exports=Character;
+function speakVoice(str){
+    if(str===''){
+        return;
+    }
+    console.error('NOT IMPLEMENTED.');
+}
+
+let characterInstance,sendAudioData,startSpeaking,finishSpeaking;
+
+module.exports=function(_characterInstance,_exposedFunctions){
+    characterInstance=_characterInstance;
+    sendAudioData=_exposedFunctions.sendAudioData;
+    startSpeaking=_exposedFunctions.startSpeaking;
+    finishSpeaking=_exposedFunctions.finishSpeaking;
+    return {expressionSettings,speakVoice};
+};

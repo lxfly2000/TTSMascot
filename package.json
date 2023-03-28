@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/lxfly2000/TTSMascot#readme",
   "dependencies": {
-    "canvas": "^2.11.0",
     "psd": "^3.4.0"
   },
   "devDependencies": {

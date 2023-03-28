@@ -21,3 +21,4 @@ psd
 * 因该应用需要支持在Win7上运行，Electron请勿使用超过22的版本
 * Node.js的版本号：https://nodejs.org/en/download/releases
 * Electron的版本号：https://www.npmjs.com/package/electron-releases
+* PSDTool：https://oov.github.io/psdtool/

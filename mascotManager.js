@@ -247,8 +247,8 @@ function loadScene(){
         let sc={seatWindow:sw,seatCharacter:null};
         global.seatWindows[i]=sc;
         if(seats[i].character>=0){
-            const Character=require('./'+global.mascotData.characters[seats[i].character].path+'/character.js');
-            sc.seatCharacter=new Character(sw,i);
+            const Character=require('./characterCommon.js');
+            sc.seatCharacter=new Character(sw,i,global.mascotData.characters[seats[i].character].path);
             sc.seatCharacter.loadCharacter();
         }else{
             sw.webContents.send('setInfo','Seat: '+i);
