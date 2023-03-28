@@ -131,6 +131,11 @@ const defaultMascotJson={
             yPercent: 0.75,
             enabled: true,
             character: 1
+        },{
+            xPercent: 0.5,
+            yPercent: 0.75,
+            enabled: true,
+            character: 2
         }
     ],
     maxMsgRecordsNum: 10,

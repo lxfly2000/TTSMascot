@@ -22,3 +22,4 @@ psd
 * Node.js的版本号：https://nodejs.org/en/download/releases
 * Electron的版本号：https://www.npmjs.com/package/electron-releases
 * PSDTool：https://oov.github.io/psdtool/
+* https://github.com/SlashNephy/SimpleVoiceroid2Proxy
