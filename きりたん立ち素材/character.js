@@ -54,7 +54,13 @@ const expressionSettings={
     ]},
     //生气状态
     angry:{keywords:['哼！','滚啊','你马','生气'],layerSettings:[
-        {fileName:'kiritan.psd',layers:[]}
+        {fileName:'kiritan.psd',layers:[
+            '表情/目/17',
+            '表情/口/4',
+            '表情/眉/6',
+            '体/1',
+            '体/砲'
+        ]}
     ]}
 };
 
