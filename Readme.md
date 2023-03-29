@@ -8,6 +8,8 @@ TTS桌宠
 `curl http://localhost:20042/action -X POST -d <JSON数据>`
 
 可通过`curl http://localhost:20042/`获得详细的说明。
+
+若要添加角色，请参考三个示例角色（[ずんだもん立ち絵素材改1.0](ずんだもん立ち絵素材改1.0) [栗田まろん立ち素材](栗田まろん立ち素材) [きりたん立ち素材](きりたん立ち素材)）中的文件修改JS脚本和mascots.json文件。（[查看mascots.json文件示例](examples.md)）
 ## 构建，运行
 * 若使用中国网络，建议先指定镜像：`set electron_mirror=https://npmmirror.com/mirrors/electron/`
 * 安装依赖：`npm install`

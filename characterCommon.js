@@ -6,7 +6,7 @@ class CharacterCommon{
         this.usingWindow=bw;
         this.seatIndex=_seatIndex;
         this.characterPath=_characterPath;
-        this.characterModule=require('./'+this.characterPath+'/character.js')(this,{sendAudioData,finishSpeaking});
+        this.characterModule=require(process.cwd()+'/'+this.characterPath+'/character.js')(this,{sendAudioData,finishSpeaking});
         this._speakVoice=this.characterModule.speakVoice;
         global.seatWindows[this.seatIndex].seatPopup=null;
         global.seatWindows[this.seatIndex].widthPopup=0;

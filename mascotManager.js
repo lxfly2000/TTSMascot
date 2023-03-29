@@ -99,7 +99,7 @@ const mascotJsonFileName='mascots.json';
 const defaultMascotJson={
     //构建默认的配置
     characters: [
-        {
+        /*{
             path: "ずんだもん立ち絵素材改1.0",
             zoom: 1,
             flipx: false,
@@ -133,10 +133,10 @@ const defaultMascotJson={
             definedWidthPx:300,
             definedHeightPx:0,
             faceTowards:false//false为向左或居中，true为向右
-        }
+        }*/
     ],
     seats: [
-        {
+        /*{
             xPercent: 0.1,
             yPercent: 0.75,
             enabled: true,
@@ -152,7 +152,7 @@ const defaultMascotJson={
             yPercent: 0.75,
             enabled: true,
             character: 2
-        }
+        }*/
     ],
     maxMsgRecordsNum: 10,
     showManagerWindowOnStartup: true,
