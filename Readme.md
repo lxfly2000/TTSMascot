@@ -19,9 +19,9 @@ electron@22
 psd
 ```
 * Node.js: https://nodejs.org/en/download/releases
-* Electron: https://www.npmjs.com/package/electron-releases (因该应用需要支持在Win7上运行，Electron请勿使用超过22的版本)
-* PSDTool: https://oov.github.io/psdtool/
-* SimpleVoiceroid2Proxy: https://github.com/SlashNephy/SimpleVoiceroid2Proxy
+* Electron: https://releases.electronjs.org/ (该应用暂时不打算放弃Win7系统，因此Electron请勿使用超过22的版本) [版本号](https://releases.electronjs.org/releases.json)
+* PSDTool: https://oov.github.io/psdtool/ (用于生成PSD的图层配置)
+* SimpleVoiceroid2Proxy: https://github.com/SlashNephy/SimpleVoiceroid2Proxy (提供VOICEROID2 HTTP接口的程序)
 * VOICEROID2: https://www.ah-soft.com/product/
 * VOICEVOX: https://voicevox.hiroshiba.jp/
 * A.I.VOICE: https://aivoice.jp/
