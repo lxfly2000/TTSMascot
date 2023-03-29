@@ -78,12 +78,12 @@ function speakVoice(str){
     'if($t.Status -eq \'NotRunning\'){$t.StartHost();}'+
     '$t.Connect();'+
     '$v=$t.VoiceNames;'+
-    'while($t.Status -ne \'Idle\'){$t.Stop();}'+
+    'while($t.Status -eq \'Busy\'){$t.Stop();}'+
     '$t.CurrentVoicePresetName=\'栗田まろん\';'+
     '$t.Text=\''+str+'\';'+
     '$t.Play();'+
     '$t.Disconnect();';
-    child_process.exec(cmd,(error,stdout,stdin)=>console.log(error,stdout,stdin));
+    child_process.exec(cmd,(error,stdout,stdin)=>console.log('child_process exec:',error,stdout,stdin));
 }
 
 let characterInstance;//表示Character对象
