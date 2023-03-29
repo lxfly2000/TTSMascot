@@ -1,4 +1,4 @@
-const {app, BrowserWindow, Tray, Menu, ipcMain, screen, shell, nativeImage} = require('electron');
+const {app, BrowserWindow, Tray, Menu, ipcMain, screen, shell} = require('electron');
 const fs = require('fs');
 const TTSServer = require('./ttsServer');
 
@@ -42,7 +42,7 @@ function setTray(){
             app.quit();
         }
     }];
-    appTray=new Tray(nativeImage.createFromPath('app.ico'));//不要在Tray构造函数中直接指定路径，可能会找不到文件
+    appTray=new Tray(app.getAppPath()+'/app.ico');//注意打包后的路径问题
     const contextMenu=Menu.buildFromTemplate(trayMenuTemplate);
     appTray.setToolTip('TTS Mascot');
     appTray.setContextMenu(contextMenu);

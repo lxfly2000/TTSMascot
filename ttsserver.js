@@ -1,3 +1,4 @@
+const { app } = require('electron');
 const { readFileSync } = require('fs');
 const HTTP = require('http');
 const { hostname } = require('os');
@@ -35,11 +36,11 @@ function startServer(){
             if(request.url==='/favicon.ico'){
                 response.setHeader('Content-Type','image/x-icon');
                 response.statusCode=200;
-                response.end(readFileSync('app.ico'));
+                response.end(readFileSync(app.getAppPath()+'/app.ico'));
             }else if(request.url==='/'){
                 response.setHeader('Content-Type','text/html; charset=utf-8');
                 response.statusCode=200;
-                response.end(readFileSync('webIndex.htm'));
+                response.end(readFileSync(app.getAppPath()+'/webIndex.htm'));
             }else{
                 response.setHeader('Content-Type','text/plain; charset=utf-8');
                 response.statusCode=404;
