@@ -18,8 +18,10 @@ TTS桌宠
 electron@22
 psd
 ```
-* 因该应用需要支持在Win7上运行，Electron请勿使用超过22的版本
-* Node.js的版本号：https://nodejs.org/en/download/releases
-* Electron的版本号：https://www.npmjs.com/package/electron-releases
-* PSDTool：https://oov.github.io/psdtool/
-* https://github.com/SlashNephy/SimpleVoiceroid2Proxy
+* Node.js: https://nodejs.org/en/download/releases
+* Electron: https://www.npmjs.com/package/electron-releases (因该应用需要支持在Win7上运行，Electron请勿使用超过22的版本)
+* PSDTool: https://oov.github.io/psdtool/
+* SimpleVoiceroid2Proxy: https://github.com/SlashNephy/SimpleVoiceroid2Proxy
+* VOICEROID2: https://www.ah-soft.com/product/
+* VOICEVOX: https://voicevox.hiroshiba.jp/
+* A.I.VOICE: https://aivoice.jp/
