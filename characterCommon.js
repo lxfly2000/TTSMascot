@@ -1,12 +1,21 @@
+const fs = require('fs');
 const PSD = require('psd');
 const {screen,ipcMain, BrowserWindow, dialog, app} = require('electron');
+
+function requireCharacterJS(path,characterInstance,exposes){
+    path+='/character.js';
+    var str=fs.readFileSync(path).toString();
+    var m=new module.constructor();
+    m._compile(str,path);
+    return m.exports(characterInstance,exposes);
+}
 
 class CharacterCommon{
     constructor(bw,_seatIndex,_characterPath){
         this.usingWindow=bw;
         this.seatIndex=_seatIndex;
         this.characterPath=_characterPath;
-        this.characterModule=require(process.cwd()+'/'+this.characterPath+'/character.js')(this,{sendAudioData,finishSpeaking});
+        this.characterModule=requireCharacterJS(this.characterPath,this,{sendAudioData,finishSpeaking});
         this._speakVoice=this.characterModule.speakVoice;
         global.seatWindows[this.seatIndex].seatPopup=null;
         global.seatWindows[this.seatIndex].widthPopup=0;
@@ -237,7 +246,7 @@ class CharacterCommon{
     }
 
     _loadPSD(stateName,fileName,enabledLayers){
-        var psdpath=__dirname+'/'+this.characterPath+'/'+fileName;
+        var psdpath=this.characterPath+'/'+fileName;
         var psdfile=PSD.fromFile(psdpath);
         //根据enabledLayers调整图层
         if(psdfile.parse()){

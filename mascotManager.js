@@ -1,6 +1,6 @@
-const {app, BrowserWindow, Tray, Menu, ipcMain, screen, shell} = require('electron');
+const {app, BrowserWindow, Tray, Menu, ipcMain, screen, shell, nativeImage} = require('electron');
 const fs = require('fs');
-const TTSServer = require('./ttsServer');
+const TTSServer = require('./ttsServer');//在Windows上可以忽略大小写，但是在Linux上，还有打包成ASAR的情况下需要区分大小写
 
 let managerWindow=null;
 let appTray=null;
@@ -66,7 +66,7 @@ function createManagerWindow(){
 	});
 
 	// 然后加载应用的 index.html。
-	managerWindow.loadFile('mascotmanagerwindow.htm');
+	managerWindow.loadFile('mascotManagerWindow.htm');
 
 	// 打开开发者工具
 	//managerWindow.webContents.openDevTools();
@@ -99,7 +99,7 @@ const mascotJsonFileName='mascots.json';
 const defaultMascotJson={
     //构建默认的配置
     characters: [
-        /*{
+        {
             path: "ずんだもん立ち絵素材改1.0",
             zoom: 1,
             flipx: false,
@@ -133,10 +133,10 @@ const defaultMascotJson={
             definedWidthPx:300,
             definedHeightPx:0,
             faceTowards:false//false为向左或居中，true为向右
-        }*/
+        }
     ],
     seats: [
-        /*{
+        {
             xPercent: 0.1,
             yPercent: 0.75,
             enabled: true,
@@ -152,7 +152,7 @@ const defaultMascotJson={
             yPercent: 0.75,
             enabled: true,
             character: 2
-        }*/
+        }
     ],
     maxMsgRecordsNum: 10,
     showManagerWindowOnStartup: true,
