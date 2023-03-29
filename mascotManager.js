@@ -1,12 +1,12 @@
-const {app, BrowserWindow, Tray, Menu, ipcMain, screen} = require('electron');
+const {app, BrowserWindow, Tray, Menu, ipcMain, screen, shell, nativeImage} = require('electron');
 const fs = require('fs');
 const TTSServer = require('./ttsServer');
 
 let managerWindow=null;
 let appTray=null;
-var canWindowClose=false;
+global.canWindowClose=false;
 
-function ClickShowWindow(){
+function ClickShowSettings(){
     if(managerWindow===null){
         createManagerWindow();
     }else{
@@ -15,22 +15,38 @@ function ClickShowWindow(){
     }
 }
 
+function ShowAllCharacters(){
+    for(var i=0;i<global.seatWindows.length;i++){
+        global.seatWindows[i].seatWindow.show();
+    }
+}
+
+function OpenWebIndex(){
+    shell.openExternal('http://localhost:'+global.mascotData.port);
+}
+
 function setTray(){
     let trayMenuTemplate=[{
-        label: '显示主窗口(&S)',
-        click: ClickShowWindow
+        label: '打开控制页面(&B)',
+        click: OpenWebIndex
+    },{
+        label: '显示所有角色窗口(&C)',
+        click: ShowAllCharacters
+    },{
+        label: '设置(&S)',
+        click: ClickShowSettings
     },{
         label: '退出(&E)',
         click: function(){
-            canWindowClose=true;
+            global.canWindowClose=true;
             app.quit();
         }
     }];
-    appTray=new Tray('app.ico');
+    appTray=new Tray(nativeImage.createFromPath('app.ico'));//不要在Tray构造函数中直接指定路径，可能会找不到文件
     const contextMenu=Menu.buildFromTemplate(trayMenuTemplate);
     appTray.setToolTip('TTS Mascot');
     appTray.setContextMenu(contextMenu);
-    appTray.on('click',ClickShowWindow);
+    appTray.on('click',ClickShowSettings);
 }
 
 function createManagerWindow(){
@@ -65,7 +81,7 @@ function createManagerWindow(){
 	});
     managerWindow.on('close',function(e){
         managerWindow.hide();
-        if(!canWindowClose){
+        if(!global.canWindowClose){
             e.preventDefault();
         }
     });

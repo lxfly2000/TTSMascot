@@ -56,12 +56,12 @@
 			editMaxBreakCount.value=tempJson.maxLineBreakPos;
 		}
 		function SaveConfig(){
-			tempJson.maxMsgRecordsNum=editMaxRecordsNum.value;
+			tempJson.maxMsgRecordsNum=parseInt(editMaxRecordsNum.value);
 			tempJson.showManagerWindowOnStartup=checkShowManagerWindowOnStartup.checked;
-			tempJson.port=editListenPort.value;
-			tempJson.windowSafeAreaExtendRate=editSafeAreaExtendRate.value;
-			tempJson.minLineBreakPos=editMinBreakCount.value;
-			tempJson.maxLineBreakPos=editMaxBreakCount.value;
+			tempJson.port=parseInt(editListenPort.value);
+			tempJson.windowSafeAreaExtendRate=parseFloat(editSafeAreaExtendRate.value);
+			tempJson.minLineBreakPos=parseInt(editMinBreakCount.value);
+			tempJson.maxLineBreakPos=parseInt(editMaxBreakCount.value);
 			ipcRenderer.send('saveConfig',tempJson);
 			close();
 		}

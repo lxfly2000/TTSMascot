@@ -22,7 +22,7 @@
 function Send(){
     var xhr=new XMLHttpRequest();
     xhr.open('POST','/action');
-    xhr.send(JSON.stringify({character:editCharacter.value,sender:0,voice:editMsg.value,subtitle:editMsg.value}));
+    xhr.send(JSON.stringify({character:parseInt(editCharacter.value),sender:0,voice:editMsg.value,subtitle:editMsg.value}));
     xhr.onreadystatechange=function(){
         if(xhr.readyState===4&&xhr.status===200){
             labelStatus.innerText=xhr.responseText;

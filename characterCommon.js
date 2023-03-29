@@ -54,6 +54,12 @@ class CharacterCommon{
             seats[this.seatIndex].yPercent=(bounds.y+bounds.height/2)/screenSize.height;
             global.saveMascotData();
         });
+        this.usingWindow.on('close',e=>{
+            if(!global.canWindowClose){
+                this.usingWindow.hide();
+                e.preventDefault();
+            }
+        });
         this.waitingQueue=[];//{voice:"",subtitle:""}
         ipcMain.on('audioEnd',(event,data)=>{
             if(data===this.seatIndex){
