@@ -67,9 +67,6 @@ function speakVoice(str){
     if(str===''){
         return;
     }
-    setTimeout(() => {
-        finishSpeaking(characterInstance);
-    }, str.length*250);
     var cmd='powershell -c "if((Get-ExecutionPolicy ) -ne \'AllSigned\'){Set-ExecutionPolicy -Scope Process Bypass};'+
     '$t=New-Object -ComObject Ai.Talk.Editor.Api.TtsControl;'+
     '$h=$t.GetAvailableHostNames();'+
@@ -82,8 +79,9 @@ function speakVoice(str){
     '$t.CurrentVoicePresetName=\'栗田まろん\';'+
     '$t.Text=\''+str+'\';'+
     '$t.Play();'+
+    'while($t.Status -eq \'Busy\'){Start-Sleep -Seconds 1;}'+
     '$t.Disconnect();';
-    child_process.exec(cmd,(error,stdout,stdin)=>console.log('child_process exec:',error,stdout,stdin));
+    child_process.exec(cmd,(error,stdout,stdin)=>finishSpeaking(characterInstance));
 }
 
 let characterInstance;//表示Character对象
