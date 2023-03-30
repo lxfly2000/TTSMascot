@@ -1,6 +1,6 @@
 const {app, BrowserWindow, Tray, Menu, ipcMain, screen, shell, nativeImage} = require('electron');
 const fs = require('fs');
-const TTSServer = require('./ttsServer');//在Windows上可以忽略大小写，但是在Linux上，还有打包成ASAR的情况下需要区分大小写
+const TTSServer = require('./ttsserver');//在Windows上可以忽略大小写，但是在Linux上，还有打包成ASAR的情况下需要区分大小写
 
 let managerWindow=null;
 let appTray=null;

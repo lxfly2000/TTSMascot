@@ -464,11 +464,11 @@ function finishSpeaking(character){
     character._processInstructions('');
     character.speaking=false;
     console.log('Speaking voice finished.');
-    character._speakIfIdle();
     if(global.seatWindows[character.seatIndex].seatPopup!==null){
         global.seatWindows[character.seatIndex].seatPopup.destroy();
         global.seatWindows[character.seatIndex].seatPopup=null;
     }
+    character._speakIfIdle();
 }
 
 function imageToBase64(image) {
