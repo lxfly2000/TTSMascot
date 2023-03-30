@@ -81,7 +81,10 @@ function speakVoice(str){
     '$t.Play();'+
     'while($t.Status -eq \'Busy\'){Start-Sleep -Seconds 1;}'+
     '$t.Disconnect();';
-    child_process.exec(cmd,(error,stdout,stdin)=>finishSpeaking(characterInstance));
+    child_process.exec(cmd,(error,stdout,stdin)=>{
+        finishSpeaking(characterInstance);
+        console.log('child_process exec:',error,stdout,stdin)
+    });
 }
 
 let characterInstance;//表示Character对象
