@@ -268,8 +268,8 @@ function loadScene(){
         let sc={seatWindow:sw,seatCharacter:null};
         global.seatWindows[i]=sc;
         if(seats[i].character>=0){
-            const Character=require('./characterCommon.js');
-            sc.seatCharacter=new Character(sw,i,global.mascotData.characters[seats[i].character].path);
+            const CharacterCommon=require('./characterCommon.js');
+            sc.seatCharacter=new CharacterCommon(sw,i,global.mascotData.characters[seats[i].character].path);
             sc.seatCharacter.loadCharacter();
         }else{
             sw.webContents.send('setInfo','Seat: '+i);
@@ -293,7 +293,8 @@ global.seatChangeCharacter=function(_seatIndex,_characterIndex){
     var beforeTowards=beforeCharacter.flipy^beforeCharacter.faceTowards;
     characters[_characterIndex].flipy=beforeTowards^characters[_characterIndex].faceTowards;
     global.seatWindows[_seatIndex].seatCharacter.leaveCharacter();
-    const Character=require('./'+global.mascotData.characters[seats[_seatIndex].character=_characterIndex].path+'/character.js');
-    global.seatWindows[_seatIndex].seatCharacter=new Character(global.seatWindows[_seatIndex].seatWindow,_seatIndex);
+    seats[_seatIndex].character=_characterIndex;
+    const CharacterCommon=require('./characterCommon.js');
+    global.seatWindows[_seatIndex].seatCharacter=new CharacterCommon(global.seatWindows[_seatIndex].seatWindow,_seatIndex,characters[_characterIndex].path);
     global.seatWindows[_seatIndex].seatCharacter.loadCharacter();
 }

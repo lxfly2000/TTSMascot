@@ -60,7 +60,7 @@ function startServer(){
 }
 
 var requestRecords=[];//[{sender:###(id),character:###(index)}]
-//这是反向查询的
+//这是反向查询的，返回-1表示没有该sender的记录
 function findSenderIndexReverse(_sender){
     for(var i=requestRecords.length-1;i>=0;i--){
         if(requestRecords[i].sender===_sender){
@@ -69,7 +69,8 @@ function findSenderIndexReverse(_sender){
     }
     return -1;
 }
-//找空闲已显示且最久没说话的characterIndex
+//旧：找空闲已显示且最久没说话的characterIndex
+//新：找空闲已显示且最少说话的characterIndex
 function findIdleLeastSpeakCharacter(){
     var displayedCharacter=[],silentCount=[];
     //i即为seat索引
@@ -82,8 +83,8 @@ function findIdleLeastSpeakCharacter(){
     }
     for(var i=requestRecords.length-1;i>=0;i--){
         var index=displayedCharacter.findIndex(e=>e===requestRecords[i].character);
-        if(index==-1){
-            silentCount[index]++;
+        if(index!==-1){
+            silentCount[index]--;
         }
     }
     var leastSpeakIndex=0;
@@ -103,8 +104,9 @@ function processRequest(_character,_sender,_subtitle,_voice){
     }
     if(_character>=0){//若已指定
         seatIndex=global.findSeatIndexByCharacterIndex(_character);
-        if(seatIndex===-1){
-            seatIndex=findIdleLeastSpeakCharacter();
+        if(seatIndex===-1){//指定的角色没有显示
+            var characterIndexLeaving=findIdleLeastSpeakCharacter();//被替换的角色
+            seatIndex=global.findSeatIndexByCharacterIndex(characterIndexLeaving);
             global.seatChangeCharacter(seatIndex,_character);
             global.saveMascotData();
         }
@@ -117,10 +119,11 @@ function processRequest(_character,_sender,_subtitle,_voice){
             if(seatIndex>=0&&!global.seatWindows[seatIndex].seatCharacter.isSpeaking()){
                 ok=true;
             }
+            //如果在说话就继续下面的查找
         }
         if(!ok){
-            seatIndex=findIdleLeastSpeakCharacter();
-            _character=global.mascotData.seats[seatIndex].character;
+            _character=findIdleLeastSpeakCharacter();
+            seatIndex=global.findSeatIndexByCharacterIndex(_character);
         }
     }
     global.seatWindows[seatIndex].seatCharacter.queueSpeak(_voice,_subtitle);
