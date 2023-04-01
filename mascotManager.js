@@ -133,7 +133,31 @@ const defaultMascotJson={
             definedWidthPx:300,
             definedHeightPx:0,
             faceTowards:false//false为向左或居中，true为向右
-        }
+        },
+        {
+			path: "琴葉立ち素材/akane",
+			zoom: 1,
+			flipx: false,
+			flipy: false,
+			name: "琴叶茜",
+			color1: "#F8898F",
+			color2: "white",
+			definedWidthPx: 300,
+			definedHeightPx: 0,
+			faceTowards: false//false为向左或居中，true为向右
+		},
+		{
+			path: "琴葉立ち素材/aoi",
+			zoom: 1,
+			flipx: false,
+			flipy: false,
+			name: "琴叶葵",
+			color1: "#719DFF",
+			color2: "white",
+			definedWidthPx: 300,
+			definedHeightPx: 0,
+			faceTowards: false//false为向左或居中，true为向右
+		}
     ],
     seats: [
         {
