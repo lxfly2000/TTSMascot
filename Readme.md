@@ -14,6 +14,7 @@ TTS桌宠
 * 若使用中国网络，建议先指定镜像：`set electron_mirror=https://npmmirror.com/mirrors/electron/`
 * 安装依赖：`npm install`
 * 运行：`npm start`
+* 打包：`npm make`
 
 依赖项：
 ```
