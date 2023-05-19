@@ -60,8 +60,8 @@
 		function audioEnd(){
 			ipcRenderer.send('audioEnd',window.seatIndex);
 		}
-		const canvasTag=document.createElement('canvas');
 		function LayeredImageToDataUrl(layeredImage){
+			const canvasTag=document.createElement('canvas');
 			//其中data#又定义为下列形式：
 			//{
 			//psdWidth:number,
