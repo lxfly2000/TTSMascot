@@ -70,42 +70,26 @@ function speakVoice(str){
     if(str===''){
         return;
     }
-    /**@type {HTTP.RequestOptions}*/
+    /**@type {HTTPS.RequestOptions}*/
     const option={
-        hostname:'127.0.0.1',
-        port:50021,
-        path:'/audio_query?speaker=3&text='+encodeURI(str),
-        method:'POST'
+        hostname:'api.tts.quest',
+        port:443,
+        path:'/v1/voicevox/?speaker=3&text='+encodeURI(str),
+        method:'GET',
+        protocol:'https:'
     };
-    const req=HTTP.request(option,/**@type {HTTP.IncomingMessage}*/res=>{
+    const req=HTTPS.request(option,/**@type {HTTPS.IncomingMessage}*/res=>{
         res.setEncoding('utf8');
         let resBody='';
         if(res.statusCode===200){
             res.on('data',thunk=>resBody+=thunk);
             res.on('end',()=>{
-                /**@type {HTTP.RequestOptions}*/
-                const option2={
-                    hostname:'127.0.0.1',
-                    port:50021,
-                    path:'/synthesis?speaker=3',
-                    method:'POST',
-                    headers:{
-                        'Content-Type':'application/json'
-                    }
-                };
-                const req2=HTTP.request(option2,/**@type {HTTP.IncomingMessage}*/res2=>{
-                    let resBody2=[];
-                    if(res2.statusCode===200){
-                        res2.on('data',thunk=>resBody2.push(thunk));
-                        res2.on('end',()=>{
-                            sendAudioData(characterInstance,resBody2);
-                            console.log(`Speaking voice: "${str}"`);
-                        });
-                    }
-                });
-                req2.on('error',e=>console.error('Error on synthesis, please check whether VOICEVOX is running properly:\n'+e));
-                req2.write(resBody);
-                req2.end();
+                var resJson=JSON.parse(resBody);
+                if(resJson.success){
+                    characterInstance.usingWindow.send('playAudio',resJson.mp3DownloadUrl);
+                }else{
+                    console.log('Request failed.');
+                }
             });
         }
     });
