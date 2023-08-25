@@ -68,6 +68,7 @@ function speakVoice(str){
     if(str===''){
         return;
     }
+    characterInstance.usingWindow.show();
     setTimeout(() => {
         finishSpeaking(characterInstance);
     }, str.length*250);

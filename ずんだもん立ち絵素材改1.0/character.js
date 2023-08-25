@@ -70,6 +70,7 @@ function speakVoice(str){
     if(str===''){
         return;
     }
+    characterInstance.usingWindow.show();
     /**@type {HTTP.RequestOptions}*/
     const option={
         hostname:'127.0.0.1',

@@ -67,6 +67,7 @@ function speakVoice(str){
     if(str===''){
         return;
     }
+    characterInstance.usingWindow.show();
     var cmd='powershell -c "if((Get-ExecutionPolicy ) -ne \'AllSigned\'){Set-ExecutionPolicy -Scope Process Bypass};'+
     '$t=New-Object -ComObject Ai.Talk.Editor.Api.TtsControl;'+
     '$h=$t.GetAvailableHostNames();'+

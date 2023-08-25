@@ -82,6 +82,7 @@ function speakVoice(str){
     if(str===''){
         return;
     }
+    characterInstance.usingWindow.show();
     var characterNames=['琴葉 葵','琴葉 葵（Chinese）','Kotonoha Aoi (English)'];
     var cmd='powershell -c "if((Get-ExecutionPolicy ) -ne \'AllSigned\'){Set-ExecutionPolicy -Scope Process Bypass};'+
     '$t=New-Object -ComObject Ai.Talk.Editor.Api.TtsControl;'+
