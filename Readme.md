@@ -12,6 +12,7 @@ TTS桌宠
 若要添加角色，请参考三个示例角色（[ずんだもん立ち絵素材改1.0](ずんだもん立ち絵素材改1.0) [栗田まろん立ち素材](栗田まろん立ち素材) [きりたん立ち素材](きりたん立ち素材)）中的文件修改JS脚本和mascots.json文件。（[查看mascots.json文件示例](examples.md)）
 ## 构建，运行
 * 若使用中国网络，建议先指定镜像：`set electron_mirror=https://npmmirror.com/mirrors/electron/`
+* Unix：`export ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/`
 * 安装依赖：`npm install`
 * 运行：`npm start`
 * 打包：`npm run make`
